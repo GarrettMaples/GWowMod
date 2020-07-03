@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GWowMod", "GWowMod\GWowMod.csproj", "{A3214DAF-6EB3-476B-8EB6-A65DD35DEEB3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A3214DAF-6EB3-476B-8EB6-A65DD35DEEB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3214DAF-6EB3-476B-8EB6-A65DD35DEEB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3214DAF-6EB3-476B-8EB6-A65DD35DEEB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3214DAF-6EB3-476B-8EB6-A65DD35DEEB3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FAC262CA-7E05-4DEA-8889-3A2F8C37A085}
+	EndGlobalSection
+EndGlobal
