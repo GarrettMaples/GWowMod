@@ -1,0 +1,396 @@
+{
+    "id": 1,
+    "name": "World of Warcraft",
+    "slug": "wow",
+    "dateModified": "2019-07-11T21:23:22.507Z",
+    "gameFiles": [
+        {
+            "id": 1,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WoW.exe",
+            "fileType": 2,
+            "platformType": 4
+        },
+        {
+            "id": 2,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WoW-64.exe",
+            "fileType": 2,
+            "platformType": 3
+        },
+        {
+            "id": 4,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "world.MPQ.lock",
+            "fileType": 4,
+            "platformType": 1
+        },
+        {
+            "id": 143,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "World of Warcraft.app",
+            "fileType": 2,
+            "platformType": 5
+        },
+        {
+            "id": 177,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WowB.exe",
+            "fileType": 2,
+            "platformType": 4
+        },
+        {
+            "id": 178,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WowB-64.exe",
+            "fileType": 2,
+            "platformType": 3
+        },
+        {
+            "id": 180,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WowT.exe",
+            "fileType": 2,
+            "platformType": 4
+        },
+        {
+            "id": 181,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WoWT-64.exe",
+            "fileType": 2,
+            "platformType": 3
+        },
+        {
+            "id": 184,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "World of Warcraft Beta.app",
+            "fileType": 2,
+            "platformType": 5
+        },
+        {
+            "id": 185,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "World of Warcraft Public Test.app",
+            "fileType": 2,
+            "platformType": 5
+        },
+        {
+            "id": 341,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "World of Warcraft Test.app",
+            "fileType": 2,
+            "platformType": 5
+        },
+        {
+            "id": 342,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "World of Warcraft Beta.app",
+            "fileType": 2,
+            "platformType": 5
+        },
+        {
+            "id": 377,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "World of Warcraft Classic.app",
+            "fileType": 2,
+            "platformType": 5
+        },
+        {
+            "id": 378,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WowC.exe",
+            "fileType": 2,
+            "platformType": 4
+        },
+        {
+            "id": 379,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WowC-64.exe",
+            "fileType": 1,
+            "platformType": 3
+        },
+        {
+            "id": 380,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WowClassic.exe",
+            "fileType": 1,
+            "platformType": 4
+        },
+        {
+            "id": 381,
+            "gameId": 1,
+            "isRequired": false,
+            "fileName": "WowClassic-64.exe",
+            "fileType": 1,
+            "platformType": 3
+        }
+    ],
+    "gameDetectionHints": [
+        {
+            "id": 1,
+            "hintType": 1,
+            "hintPath": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Blizzard Entertainment\\World of Warcraft",
+            "hintKey": "InstallPath",
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 2,
+            "hintType": 1,
+            "hintPath": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Blizzard Entertainment\\World of Warcraft",
+            "hintKey": "InstallPath",
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 3,
+            "hintType": 1,
+            "hintPath": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Blizzard Entertainment\\World of Warcraft",
+            "hintKey": "InstallPath",
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 4,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES(x86)%\\World of Warcraft",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 5,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES%\\World of Warcraft",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 6,
+            "hintType": 2,
+            "hintPath": "%Public%\\Games\\World of Warcraft",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 10,
+            "hintType": 2,
+            "hintPath": "/Applications/World of Warcraft",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 22,
+            "hintType": 1,
+            "hintPath": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Blizzard Entertainment\\World of Warcraft\\PTR",
+            "hintKey": "InstallPath",
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 23,
+            "hintType": 1,
+            "hintPath": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Blizzard Entertainment\\World of Warcraft\\PTR",
+            "hintKey": "InstallPath",
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 24,
+            "hintType": 1,
+            "hintPath": "HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\VirtualStore\\MACHINE\\SOFTWARE\\Blizzard Entertainment\\World of Warcraft\\PTR",
+            "hintKey": "InstallPath",
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 30,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES(x86)%\\World of Warcraft Beta",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 31,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES%\\World of Warcraft Beta",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 54,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES(x86)%\\World of Warcraft\\_retail_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 55,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES%\\World of Warcraft\\_retail_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 56,
+            "hintType": 2,
+            "hintPath": "%Public%\\Games\\World of Warcraft\\_retail_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 57,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES(x86)%\\World of Warcraft\\_ptr_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 58,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES%\\World of Warcraft\\_ptr_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 59,
+            "hintType": 2,
+            "hintPath": "%Public%\\Games\\World of Warcraft\\_ptr_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 61,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES(x86)%\\World of Warcraft\\_beta_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 62,
+            "hintType": 2,
+            "hintPath": "%PROGRAMFILES%\\World of Warcraft\\_beta_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 63,
+            "hintType": 2,
+            "hintPath": "%Public%\\Games\\World of Warcraft\\_beta_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 64,
+            "hintType": 2,
+            "hintPath": "/Applications/World of Warcraft/_retail_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 65,
+            "hintType": 2,
+            "hintPath": "/Applications/World of Warcraft/_ptr_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 66,
+            "hintType": 2,
+            "hintPath": "/Applications/World of Warcraft/_beta_",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 67,
+            "hintType": 2,
+            "hintPath": "/Applications/World of Warcraft Public Test",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        },
+        {
+            "id": 68,
+            "hintType": 2,
+            "hintPath": "/Applications/World of Warcraft Beta",
+            "hintKey": null,
+            "hintOptions": 0,
+            "gameId": 1
+        }
+    ],
+    "fileParsingRules": [
+        {
+            "commentStripPattern": "(?s)<!--.*?-->",
+            "fileExtension": ".xml",
+            "inclusionPattern": "(?i)<(?:Include|Script)\\s+file=[\"\"']((?:(?<!\\.\\.).)+)[\"\"']\\s*/>",
+            "gameId": 1,
+            "id": 0
+        },
+        {
+            "commentStripPattern": "(?m)\\s*#.*$",
+            "fileExtension": ".toc",
+            "inclusionPattern": "(?mi)^\\s*((?:(?<!\\.\\.).)+\\.(?:xml|lua))\\s*$",
+            "gameId": 1,
+            "id": 0
+        }
+    ],
+    "categorySections": [
+        {
+            "id": 1,
+            "gameId": 1,
+            "name": "Addons",
+            "packageType": 1,
+            "path": "Interface\\Addons",
+            "initialInclusionPattern": "(?i)^([^/]+)[\\\\/]\\1\\.toc$",
+            "extraIncludePattern": "(?i)^[^/\\\\]+[/\\\\]Bindings\\.xml$",
+            "gameCategoryId": 1
+        }
+    ],
+    "maxFreeStorage": 0,
+    "maxPremiumStorage": 0,
+    "maxFileSize": 0,
+    "addonSettingsFolderFilter": "*",
+    "addonSettingsStartingFolder": "WTF/Account",
+    "addonSettingsFileFilter": "*.lua;AddOns.txt",
+    "addonSettingsFileRemovalFilter": "{Module}.lua",
+    "supportsAddons": true,
+    "supportsPartnerAddons": false,
+    "supportedClientConfiguration": 3,
+    "supportsNotifications": true,
+    "profilerAddonId": 43270,
+    "twitchGameId": 18122,
+    "clientGameSettingsId": 1
+}
