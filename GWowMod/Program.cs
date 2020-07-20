@@ -1,10 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using GWowMod.Actions;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Extensions.Http;
 using Polly.Timeout;
 using Refit;
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -58,9 +61,14 @@ namespace GWowMod
                 .AddLogging()
                 .AddSingleton<IGWowModWorker, GWowModWorker>()
                 .AddSingleton<IFingerPrintScanner, FingerPrintScanner>()
-                .AddSingleton<IAddonUpdater, AddonUpdater>()
                 .AddSingleton<IWowPathProvider, WowPathProvider>()
+                .AddMediatR(typeof(Program).Assembly)
                 .AddLogging(x => x.AddConsole());
+
+            var foo = Policy.Handle<IOException>()
+                .RetryAsync(3);
+
+            // serviceCollection.AddP
 
             serviceCollection.AddRefitClient<ICurseForgeClient>()
                 .ConfigureHttpClient(client =>
@@ -71,7 +79,7 @@ namespace GWowMod
                 .AddPolicyHandler(retryPolicy)
                 .AddPolicyHandler(timeoutPolicy); // We place the timeoutPolicy inside the retryPolicy, to make it time out each try.
             
-            serviceCollection.AddHttpClient<IAddonUpdater, AddonUpdater>()
+            serviceCollection.AddHttpClient<IRequestHandler<UpdateAddonRequest>, UpdateAddonRequestHander>()
                 .ConfigureHttpClient(client =>
                 {
                     client.Timeout = TimeSpan.FromSeconds(60); // Overall timeout across all tries

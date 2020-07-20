@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using GWowMod.Actions;
+using MediatR;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace GWowMod
@@ -10,13 +12,13 @@ namespace GWowMod
 
     internal class GWowModWorker : IGWowModWorker
     {
-        private readonly IAddonUpdater _addonUpdater;
+        private readonly IMediator _mediator;
         private readonly ILogger<GWowModWorker> _logger;
-        private IWowPathProvider _wowPathProvider;
+        private readonly IWowPathProvider _wowPathProvider;
 
-        public GWowModWorker(IAddonUpdater addonUpdater, ILogger<GWowModWorker> logger, IWowPathProvider wowPathProvider)
+        public GWowModWorker(IMediator mediator, ILogger<GWowModWorker> logger, IWowPathProvider wowPathProvider)
         {
-            _addonUpdater = addonUpdater;
+            _mediator = mediator;
             _logger = logger;
             _wowPathProvider = wowPathProvider;
         }
@@ -50,7 +52,8 @@ namespace GWowMod
 
             if (cliOptions.UpdateAddons)
             {
-                await _addonUpdater.UpdateAddons();
+                var updateAllAddonsRequest = new UpdateAllAddonsRequest();
+                await _mediator.Publish(updateAllAddonsRequest);
             }
         }
     }
