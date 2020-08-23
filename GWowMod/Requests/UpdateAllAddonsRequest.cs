@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GWowMod.Actions
+namespace GWowMod.Requests
 {
     public class UpdateAllAddonsRequest : IRequest
     {

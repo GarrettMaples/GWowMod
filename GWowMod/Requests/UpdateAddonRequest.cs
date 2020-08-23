@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using File = System.IO.File;
 
-namespace GWowMod.Actions
+namespace GWowMod.Requests
 {
     public class UpdateAddonRequest : IRequest
     {

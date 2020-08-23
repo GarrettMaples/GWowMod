@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GWowMod.Actions
+namespace GWowMod.Requests
 {
     public class AddonsRequest : IRequest<MatchingGamesPayload>
     {

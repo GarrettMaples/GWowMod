@@ -1,5 +1,5 @@
-﻿using GWowMod.Actions;
-using GWowMod.JSON;
+﻿using GWowMod.JSON;
+using GWowMod.Requests;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Linq;

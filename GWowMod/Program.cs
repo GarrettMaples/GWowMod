@@ -1,4 +1,4 @@
-﻿using GWowMod.Actions;
+﻿using GWowMod.Requests;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
