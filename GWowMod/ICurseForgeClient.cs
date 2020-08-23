@@ -1,6 +1,5 @@
-﻿using Refit;
-using System.Collections.Generic;
-using System.Net.Http;
+﻿using GWowMod.JSON;
+using Refit;
 using System.Threading.Tasks;
 
 namespace GWowMod
@@ -9,5 +8,8 @@ namespace GWowMod
     {
         [Post("/v2/fingerprint")]
         Task<MatchingGamesPayload> GetMatchingGames(long[] fingerPrints);
+
+        [Get("/v2/game/1")]
+        Task<Game> GetGame();
     }
 }

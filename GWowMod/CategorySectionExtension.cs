@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.IO;
 
 namespace GWowMod
@@ -8,33 +7,27 @@ namespace GWowMod
     {
         public static void SetDirectory(this CategorySection section, string gamePath)
         {
-            try
+            string platformSafePath = section.GetPlatformSafePath();
+            if (platformSafePath.Contains("%"))
             {
-                string platformSafePath = section.GetPlatformSafePath();
-                if (platformSafePath.Contains("%"))
+                string[] strArray = platformSafePath.Split(Path.DirectorySeparatorChar);
+                for (int index = 0; index < strArray.Length; ++index)
                 {
-                    string[] strArray = platformSafePath.Split(Path.DirectorySeparatorChar);
-                    for (int index = 0; index < strArray.Length; ++index)
+                    if (strArray[index].StartsWith("%"))
                     {
-                        if (strArray[index].StartsWith("%"))
-                        {
-                            string variable = strArray[index].Replace("%", string.Empty);
-                            strArray[index] = variable == "PERSONAL" || variable == "MYDOCUMENTS"
-                                ? Environment.GetFolderPath(Environment.SpecialFolder.Personal)
-                                : Environment.GetEnvironmentVariable(variable);
-                        }
+                        string variable = strArray[index].Replace("%", string.Empty);
+                        strArray[index] = variable == "PERSONAL" || variable == "MYDOCUMENTS"
+                            ? Environment.GetFolderPath(Environment.SpecialFolder.Personal)
+                            : Environment.GetEnvironmentVariable(variable);
                     }
-
-                    string fullPath = Path.GetFullPath(string.Join(Path.DirectorySeparatorChar.ToString(), strArray));
-                    section.Directory = new DirectoryInfo(fullPath);
                 }
-                else
-                    section.Directory = new DirectoryInfo(Path.Combine(gamePath, platformSafePath));
+
+                string fullPath = Path.GetFullPath(string.Join(Path.DirectorySeparatorChar.ToString(), strArray));
+                section.Directory = new DirectoryInfo(fullPath);
             }
-            catch (Exception ex)
+            else
             {
-                throw;
-                // Logger<>.Error(ex, "Unable to set section directory", (object) null);
+                section.Directory = new DirectoryInfo(Path.Combine(gamePath, platformSafePath));
             }
         }
 

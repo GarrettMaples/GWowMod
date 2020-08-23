@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GWowMod
+namespace GWowMod.JSON
 {
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
     public class Dependency
@@ -34,7 +34,7 @@ namespace GWowMod
         public string fileName { get; set; }
         public DateTime fileDate { get; set; }
         public int fileLength { get; set; }
-        public int releaseType { get; set; }
+        public ProjectFileReleaseType releaseType { get; set; }
         public int fileStatus { get; set; }
         public string downloadUrl { get; set; }
         public bool isAlternate { get; set; }
@@ -99,7 +99,7 @@ namespace GWowMod
         public string fileName { get; set; }
         public DateTime fileDate { get; set; }
         public int fileLength { get; set; }
-        public int releaseType { get; set; }
+        public ProjectFileReleaseType releaseType { get; set; }
         public int fileStatus { get; set; }
         public string downloadUrl { get; set; }
         public bool isAlternate { get; set; }
@@ -154,6 +154,13 @@ namespace GWowMod
         public PartialMatchFingerprints partialMatchFingerprints { get; set; }
         public List<object> installedFingerprints { get; set; }
         public List<object> unmatchedFingerprints { get; set; }
+    }
+
+    public enum ProjectFileReleaseType
+    {
+        Release = 1,
+        Beta = 2,
+        Alpha = 3
     }
 }
 //

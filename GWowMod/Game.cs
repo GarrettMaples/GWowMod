@@ -37,15 +37,18 @@ namespace GWowMod
         public string inclusionPattern { get; set; }
         public int gameId { get; set; }
         public int id { get; set; }
-        
+
         [JsonIgnore]
         public Regex CommentStripRegex
         {
             get
             {
-                if (this.commentStripPattern != null && this._commentStripRegex == null)
-                    this._commentStripRegex = new Regex(this.commentStripPattern);
-                return this._commentStripRegex;
+                if (commentStripPattern != null && _commentStripRegex == null)
+                {
+                    _commentStripRegex = new Regex(commentStripPattern);
+                }
+
+                return _commentStripRegex;
             }
         }
 
@@ -54,9 +57,12 @@ namespace GWowMod
         {
             get
             {
-                if (this._inclusionRegex == null)
-                    this._inclusionRegex = new Regex(this.inclusionPattern);
-                return this._inclusionRegex;
+                if (_inclusionRegex == null)
+                {
+                    _inclusionRegex = new Regex(inclusionPattern);
+                }
+
+                return _inclusionRegex;
             }
         }
     }
@@ -65,7 +71,7 @@ namespace GWowMod
     {
         private Regex _mInitialInclusionRegex;
         private Regex _mExtraIncludeRegex;
-        
+
         public int id { get; set; }
         public int gameId { get; set; }
         public string name { get; set; }
@@ -76,15 +82,18 @@ namespace GWowMod
         public int gameCategoryId { get; set; }
         public DirectoryInfo Directory { get; set; }
         public string Path { get; set; } = string.Empty;
-        
+
         [JsonIgnore]
         public Regex InitialInclusionRegex
         {
             get
             {
-                if (this._mInitialInclusionRegex == null)
-                    this._mInitialInclusionRegex = new Regex(this.initialInclusionPattern);
-                return this._mInitialInclusionRegex;
+                if (_mInitialInclusionRegex == null)
+                {
+                    _mInitialInclusionRegex = new Regex(initialInclusionPattern);
+                }
+
+                return _mInitialInclusionRegex;
             }
         }
 
@@ -93,13 +102,16 @@ namespace GWowMod
         {
             get
             {
-                if (this.extraIncludePattern != null && this._mExtraIncludeRegex == null)
-                    this._mExtraIncludeRegex = new Regex(this.extraIncludePattern);
-                return this._mExtraIncludeRegex;
+                if (extraIncludePattern != null && _mExtraIncludeRegex == null)
+                {
+                    _mExtraIncludeRegex = new Regex(extraIncludePattern);
+                }
+
+                return _mExtraIncludeRegex;
             }
         }
     }
-    
+
     public enum GameSectionPackageMapPackageType
     {
         Folder = 1,
@@ -107,7 +119,7 @@ namespace GWowMod
         SingleFile = 3,
         Cmod2 = 4,
         ModPack = 5,
-        Mod = 6,
+        Mod = 6
     }
 
     public class Game

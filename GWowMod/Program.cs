@@ -15,27 +15,23 @@ namespace GWowMod
 {
     public class Program
     {
-        public class CliOptions
-        {
-            public bool GetInstallPath { get; set; }
-            public string InstallPath { get; set; }
-            public bool UpdateAddons { get; set; }
-        }
-        
         /// <summary>
-        /// 
         /// </summary>
-        /// <param name="getInstallPath">Get Wow Install Path</param>
+        /// <param name="config">Get Wow Install Path</param>
         /// <param name="installPath">Set Wow Install Path e.g. C:\Program Files (x86)\World of Warcraft\_retail_\Interface\AddOns</param>
-        /// <param name="updateAddons">Update out of date addons</param>
+        /// <param name="updateAddons">Update all out of date addons</param>
+        /// <param name="addons">Return list of installed addons</param>
+        /// <param name="updateAddon">Update addon by Id</param>
         /// <returns></returns>
-        static async Task Main(bool getInstallPath, string installPath, bool updateAddons)
+        private static async Task Main(bool config, string installPath, bool updateAddons, bool addons, int? updateAddon)
         {
             var cliOptions = new CliOptions
             {
-                GetInstallPath = getInstallPath,
+                Config = config,
                 InstallPath = installPath,
-                UpdateAddons = updateAddons
+                UpdateAddons = updateAddons,
+                Addons = addons,
+                UpdateAddon = updateAddon
             };
 
             await Startup(cliOptions);
@@ -68,7 +64,6 @@ namespace GWowMod
             var foo = Policy.Handle<IOException>()
                 .RetryAsync(3);
 
-            // serviceCollection.AddP
 
             serviceCollection.AddRefitClient<ICurseForgeClient>()
                 .ConfigureHttpClient(client =>
@@ -78,7 +73,7 @@ namespace GWowMod
                 })
                 .AddPolicyHandler(retryPolicy)
                 .AddPolicyHandler(timeoutPolicy); // We place the timeoutPolicy inside the retryPolicy, to make it time out each try.
-            
+
             serviceCollection.AddHttpClient<IRequestHandler<UpdateAddonRequest>, UpdateAddonRequestHander>()
                 .ConfigureHttpClient(client =>
                 {
@@ -104,6 +99,15 @@ namespace GWowMod
             }
 
             logger.LogDebug("All done!");
+        }
+
+        public class CliOptions
+        {
+            public bool Config { get; set; }
+            public string InstallPath { get; set; }
+            public bool UpdateAddons { get; set; }
+            public bool Addons { get; set; }
+            public int? UpdateAddon { get; set; }
         }
     }
 }

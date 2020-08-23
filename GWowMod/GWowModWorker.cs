@@ -1,6 +1,8 @@
 ﻿using GWowMod.Actions;
+using GWowMod.JSON;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GWowMod
@@ -35,18 +37,18 @@ namespace GWowMod
                 await _wowPathProvider.SaveInstallPath(cliOptions.InstallPath);
                 _logger.LogInformation($"Set Wow Install Path: {cliOptions.InstallPath}");
             }
-            
-            if (cliOptions.GetInstallPath)
+
+            if (cliOptions.Config)
             {
                 var installPath = await _wowPathProvider.GetInstallPath();
 
                 if (string.IsNullOrWhiteSpace(installPath))
                 {
-                    _logger.LogInformation($"WoW Install Path not set");
+                    _logger.LogInformation("WoW Install Path not set");
                 }
                 else
                 {
-                    _logger.LogInformation($"WoW Install Path: {installPath}");   
+                    _logger.LogInformation($"WoW Install Path: {installPath}");
                 }
             }
 
@@ -54,6 +56,35 @@ namespace GWowMod
             {
                 var updateAllAddonsRequest = new UpdateAllAddonsRequest();
                 await _mediator.Publish(updateAllAddonsRequest);
+            }
+
+            if (cliOptions.Addons)
+            {
+                var addonsRequest = new AddonsRequest();
+                MatchingGamesPayload matchingGamesPayload = await _mediator.Send(addonsRequest);
+
+                foreach (var exactMatch in matchingGamesPayload.exactMatches)
+                {
+                    _logger.LogInformation($"Id: {exactMatch.file.id} Name: {exactMatch.file.modules[0].foldername} " +
+                        $"Version: {exactMatch.file.fileName} File Date: {exactMatch.file.fileDate}");
+                }
+            }
+
+            if (cliOptions.UpdateAddon.HasValue)
+            {
+                var addonsRequest = new AddonsRequest();
+                MatchingGamesPayload matchingGamesPayload = await _mediator.Send(addonsRequest);
+
+                var exactMatch = matchingGamesPayload.exactMatches.FirstOrDefault(x => x.id == cliOptions.UpdateAddon.Value);
+                if (exactMatch == null)
+                {
+                    _logger.LogInformation($"Unable to find addon with Id: {cliOptions.UpdateAddon.Value}");
+                }
+                else
+                {
+                    var updateAddonRequest = new UpdateAddonRequest();
+                    await _mediator.Publish(updateAddonRequest);
+                }
             }
         }
     }

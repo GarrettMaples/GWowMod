@@ -14,7 +14,7 @@ namespace GWowMod
 
     internal class WowPathProvider : IWowPathProvider
     {
-        private ILogger<WowPathProvider> _logger;
+        private readonly ILogger<WowPathProvider> _logger;
 
         public WowPathProvider(ILogger<WowPathProvider> logger)
         {
@@ -25,7 +25,7 @@ namespace GWowMod
         {
             try
             {
-                using (var reader = new StreamReader(System.IO.File.Open(GetSettingsLocation(), FileMode.OpenOrCreate, FileAccess.Read,
+                using (var reader = new StreamReader(File.Open(GetSettingsLocation(), FileMode.OpenOrCreate, FileAccess.Read,
                     FileShare.ReadWrite)))
                 {
                     var settingsText = await reader.ReadToEndAsync();
@@ -41,7 +41,7 @@ namespace GWowMod
                         gWowModSettings = new GWowModSettings { WowInstallPath = installPath };
                     }
 
-                    using (var writer = new StreamWriter(System.IO.File.Open(GetSettingsLocation(), FileMode.Truncate, FileAccess.Write,
+                    using (var writer = new StreamWriter(File.Open(GetSettingsLocation(), FileMode.Truncate, FileAccess.Write,
                         FileShare.ReadWrite)))
                     {
                         await writer.WriteLineAsync(JsonSerializer.Serialize(gWowModSettings));
@@ -56,26 +56,26 @@ namespace GWowMod
 
         public async Task<string> GetInstallPath()
         {
-            using (var reader = new StreamReader(System.IO.File.Open(GetSettingsLocation(), FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite)))
+            using (var reader = new StreamReader(File.Open(GetSettingsLocation(), FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite)))
             {
                 var settingsContents = await reader.ReadToEndAsync();
                 if (string.IsNullOrWhiteSpace(settingsContents))
                 {
                     return string.Empty;
                 }
-                
+
                 var gWowModSettings = JsonSerializer.Deserialize<GWowModSettings>(settingsContents);
                 return GetNormalizedPath(gWowModSettings.WowInstallPath);
             }
         }
-        
+
         private string GetNormalizedPath(string path, bool checkExistence = true)
         {
             if (!path.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {
                 path += Path.DirectorySeparatorChar.ToString();
             }
-            
+
             return path;
         }
 
@@ -86,7 +86,7 @@ namespace GWowMod
 
             return Path.Combine(directory.FullName, "GWowModSettings.json");
         }
-        
+
         private class GWowModSettings
         {
             public string WowInstallPath { get; set; }

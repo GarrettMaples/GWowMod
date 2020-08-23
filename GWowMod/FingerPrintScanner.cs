@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -19,7 +18,7 @@ namespace GWowMod
         public IEnumerable<long> GetFingerPrints(Game game)
         {
             CategorySection section = game.categorySections.FirstOrDefault();
-            
+
             if (section == null)
             {
                 throw new InvalidOperationException("Invalid number of sections found");
@@ -44,38 +43,7 @@ namespace GWowMod
                 foreach (string path in matchingFiles)
                 {
                     long normalizedFileHash;
-                    try
-                    {
-                        normalizedFileHash = MurmurHash2.ComputeNormalizedFileHash(path);
-                    }
-                    catch (SecurityException ex)
-                    {
-                        // Folder.Logger.Warn((Exception) ex, "Get File Fingerprint Security Exception", (object) null);
-                        // scanResult.Status = ScanResultStatus.SecurityException;
-                        // return scanResult;
-                        throw;
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        // Folder.Logger.Warn((Exception) ex, "Get File Fingerprint Unauthorized Access Exception", (object) null);
-                        // scanResult.Status = ScanResultStatus.SecurityException;
-                        // return scanResult;
-                        throw;
-                    }
-                    catch (IOException ex)
-                    {
-                        // Folder.Logger.Warn((Exception) ex, "Get File Fingerprint IO Exception", (object) null);
-                        // scanResult.Status = ScanResultStatus.SecurityException;
-                        // return scanResult;
-                        throw;
-                    }
-                    catch (Exception ex)
-                    {
-                        // Folder.Logger.Error(ex, "Get File Fingerprint Exception", (object) null);
-                        // scanResult.Status = ScanResultStatus.UnknownException;
-                        // return scanResult;
-                        throw;
-                    }
+                    normalizedFileHash = MurmurHash2.ComputeNormalizedFileHash(path);
 
                     longList.Add(normalizedFileHash);
                 }
@@ -84,9 +52,12 @@ namespace GWowMod
 
                 string empty = string.Empty;
                 foreach (long num in longList)
+                {
                     empty += num.ToString();
+                }
+
                 byte[] bytes = Encoding.ASCII.GetBytes(empty);
-                var fingerPrint = (long) MurmurHash2.ComputeHash(bytes, false);
+                var fingerPrint = (long) MurmurHash2.ComputeHash(bytes);
 
                 fingerPrints.Add(fingerPrint);
             }
@@ -112,20 +83,28 @@ namespace GWowMod
                     {
                         string input = file.FullName.ToLower().Replace(str.ToLower(), "");
                         if (section.InitialInclusionRegex.Match(input).Success)
+                        {
                             fileInfoList.Add(file);
+                        }
+
                         if (section.ExtraIncludeRegex != null && section.ExtraIncludeRegex.Match(input).Success)
+                        {
                             matchingFileList.Add(file.FullName.ToLowerInvariant());
+                        }
                     }
                 }
 
                 foreach (FileInfo pIncludeFile in fileInfoList)
+                {
                     ProcessIncludeFile(game, section, matchingFileList, pIncludeFile);
+                }
+
                 return matchingFileList;
             }
             catch (Exception ex)
             {
                 // Folder.Logger.Error(ex, "Error matching files", (object) null);
-                return (List<string>) null;
+                return null;
             }
         }
 
@@ -136,12 +115,21 @@ namespace GWowMod
             try
             {
                 if (!pIncludeFile.Exists || matchingFileList.Contains(pIncludeFile.FullName.ToLowerInvariant()))
+                {
                     return;
+                }
+
                 if (section.packageType != GameSectionPackageMapPackageType.Ctoc && section.packageType != GameSectionPackageMapPackageType.Cmod2)
+                {
                     matchingFileList.Add(pIncludeFile.FullName.ToLowerInvariant());
+                }
+
                 if (game.fileParsingRules.Count == 0)
+                {
                     return;
-                string input = (string) null;
+                }
+
+                string input = null;
                 using (StreamReader streamReader = new StreamReader(pIncludeFile.FullName))
                 {
                     input = streamReader.ReadToEnd();
@@ -149,12 +137,18 @@ namespace GWowMod
                 }
 
                 FileParsingRule gameFileParsingRule =
-                    game.fileParsingRules.FirstOrDefault<FileParsingRule>((Func<FileParsingRule, bool>) (p =>
-                        p.fileExtension == pIncludeFile.Extension.ToLowerInvariant()));
+                    game.fileParsingRules.FirstOrDefault(p =>
+                        p.fileExtension == pIncludeFile.Extension.ToLowerInvariant());
                 if (gameFileParsingRule == null)
+                {
                     return;
+                }
+
                 if (gameFileParsingRule.CommentStripRegex != null)
+                {
                     input = gameFileParsingRule.CommentStripRegex.Replace(input, string.Empty);
+                }
+
                 foreach (Match match in gameFileParsingRule.InclusionRegex.Matches(input))
                 {
                     string fileName;
