@@ -13,10 +13,10 @@ namespace GWowMod.Requests
     internal class UpdateAllAddonsRequestHandler : IRequestHandler<UpdateAllAddonsRequest>
     {
         private readonly ICurseForgeClient _curseForgeClient;
-        private readonly ILogger<UpdateAddonRequestHander> _logger;
+        private readonly ILogger<UpdateAddonRequestHandler> _logger;
         private readonly IMediator _mediator;
 
-        public UpdateAllAddonsRequestHandler(ICurseForgeClient curseForgeClient, ILogger<UpdateAddonRequestHander> logger, IMediator mediator)
+        public UpdateAllAddonsRequestHandler(ICurseForgeClient curseForgeClient, ILogger<UpdateAddonRequestHandler> logger, IMediator mediator)
         {
             _curseForgeClient = curseForgeClient;
             _logger = logger;
@@ -29,9 +29,7 @@ namespace GWowMod.Requests
             MatchingGamesPayload matchingGamesPayload = await _mediator.Send(addonsRequest, cancellationToken);
 
             var updateAddonRequest = new UpdateAddonRequest(matchingGamesPayload.exactMatches.ToArray());
-            await _mediator.Publish(updateAddonRequest, cancellationToken);
-
-            return Unit.Value;
+            return await _mediator.Send(updateAddonRequest, cancellationToken);
         }
     }
 }

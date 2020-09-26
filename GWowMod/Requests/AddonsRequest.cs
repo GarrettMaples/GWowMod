@@ -27,7 +27,7 @@ namespace GWowMod.Requests
         public async Task<MatchingGamesPayload> Handle(AddonsRequest request, CancellationToken cancellationToken)
         {
             var fingerPrintRequest = new FingerPrintRequest();
-            long[] fingerPrints = (await _mediator.Send(fingerPrintRequest, cancellationToken)).ToArray();
+            var fingerPrints = (await _mediator.Send(fingerPrintRequest, cancellationToken)).ToArray();
 
             _logger.LogInformation($"FingerPrint count: {fingerPrints.Length}");
 

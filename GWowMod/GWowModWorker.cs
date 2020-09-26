@@ -55,7 +55,7 @@ namespace GWowMod
             if (cliOptions.UpdateAddons)
             {
                 var updateAllAddonsRequest = new UpdateAllAddonsRequest();
-                await _mediator.Publish(updateAllAddonsRequest);
+                await _mediator.Send(updateAllAddonsRequest);
             }
 
             if (cliOptions.Addons)
@@ -83,7 +83,7 @@ namespace GWowMod
                 else
                 {
                     var updateAddonRequest = new UpdateAddonRequest();
-                    await _mediator.Publish(updateAddonRequest);
+                    await _mediator.Send(updateAddonRequest);
                 }
             }
         }

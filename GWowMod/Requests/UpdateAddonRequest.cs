@@ -21,15 +21,15 @@ namespace GWowMod.Requests
         public ExactMatch[] ExactMatches { get; }
     }
 
-    internal class UpdateAddonRequestHander : IRequestHandler<UpdateAddonRequest>
+    internal class UpdateAddonRequestHandler : IRequestHandler<UpdateAddonRequest>
     {
-        private readonly ILogger<UpdateAddonRequestHander> _logger;
+        private readonly ILogger<UpdateAddonRequestHandler> _logger;
         private readonly HttpClient _httpClient;
         private readonly IWowPathProvider _wowPathProvider;
 
         private readonly ProjectFileReleaseType _preferredReleaseType = ProjectFileReleaseType.Release;
 
-        public UpdateAddonRequestHander(ILogger<UpdateAddonRequestHander> logger, HttpClient httpClient, IWowPathProvider wowPathProvider)
+        public UpdateAddonRequestHandler(ILogger<UpdateAddonRequestHandler> logger, HttpClient httpClient, IWowPathProvider wowPathProvider)
         {
             _logger = logger;
             _httpClient = httpClient;
@@ -38,7 +38,7 @@ namespace GWowMod.Requests
 
         public async Task<Unit> Handle(UpdateAddonRequest request, CancellationToken cancellationToken)
         {
-            string installPath = await _wowPathProvider.GetInstallPath();
+            var installPath = await _wowPathProvider.GetInstallPath();
 
             foreach (var exactMatch in request.ExactMatches)
             {
@@ -93,7 +93,7 @@ namespace GWowMod.Requests
                 await using (var file = new FileInfo(fileNameAndPath).Create())
                 {
                     var bytes = await response.Content.ReadAsByteArrayAsync();
-                    await file.WriteAsync(bytes, 0, bytes.Length);
+                    await file.WriteAsync(bytes, 0, bytes.Length, cancellationToken);
                 }
 
                 foreach (var module in exactMatch.file.modules)

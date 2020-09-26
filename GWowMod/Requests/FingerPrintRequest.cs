@@ -15,14 +15,14 @@ namespace GWowMod.Requests
     internal class FingerPrintRequestHandler : IRequestHandler<FingerPrintRequest, IEnumerable<long>>
     {
         private readonly IWowPathProvider _wowPathProvider;
-        private readonly ILogger<UpdateAddonRequestHander> _logger;
+        private readonly ILogger<UpdateAddonRequestHandler> _logger;
         private readonly IFingerPrintScanner _fingerPrintScanner;
         private readonly ICurseForgeClient _curseForgeClient;
 
         public FingerPrintRequestHandler
         (
             IWowPathProvider wowPathProvider,
-            ILogger<UpdateAddonRequestHander> logger,
+            ILogger<UpdateAddonRequestHandler> logger,
             IFingerPrintScanner fingerPrintScanner,
             ICurseForgeClient curseForgeClient
         )

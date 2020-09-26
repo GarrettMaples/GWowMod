@@ -7,7 +7,6 @@ using Polly.Extensions.Http;
 using Polly.Timeout;
 using Refit;
 using System;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -58,12 +57,10 @@ namespace GWowMod
                 .AddSingleton<IGWowModWorker, GWowModWorker>()
                 .AddSingleton<IFingerPrintScanner, FingerPrintScanner>()
                 .AddSingleton<IWowPathProvider, WowPathProvider>()
-                .AddMediatR(typeof(Program).Assembly)
                 .AddLogging(x => x.AddConsole());
 
-            var foo = Policy.Handle<IOException>()
-                .RetryAsync(3);
-
+            // var foo = Policy.Handle<IOException>()
+            //     .RetryAsync(3);
 
             serviceCollection.AddRefitClient<ICurseForgeClient>()
                 .ConfigureHttpClient(client =>
@@ -74,13 +71,23 @@ namespace GWowMod
                 .AddPolicyHandler(retryPolicy)
                 .AddPolicyHandler(timeoutPolicy); // We place the timeoutPolicy inside the retryPolicy, to make it time out each try.
 
-            serviceCollection.AddHttpClient<IRequestHandler<UpdateAddonRequest>, UpdateAddonRequestHander>()
+            serviceCollection.AddHttpClient<IRequestHandler<UpdateAddonRequest>, UpdateAddonRequestHandler>()
                 .ConfigureHttpClient(client =>
                 {
                     client.Timeout = TimeSpan.FromSeconds(60); // Overall timeout across all tries
                 })
                 .AddPolicyHandler(retryPolicy)
                 .AddPolicyHandler(timeoutPolicy); // We place the timeoutPolicy inside the retryPolicy, to make it time out each try.
+            
+            serviceCollection.AddHttpClient<IRequestHandler<UpdateAllAddonsRequest>, UpdateAllAddonsRequestHandler>()
+                .ConfigureHttpClient(client =>
+                {
+                    client.Timeout = TimeSpan.FromSeconds(60); // Overall timeout across all tries
+                })
+                .AddPolicyHandler(retryPolicy)
+                .AddPolicyHandler(timeoutPolicy); // We place the timeoutPolicy inside the retryPolicy, to make it time out each try.
+
+            serviceCollection.AddMediatR(typeof(Program).Assembly);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
