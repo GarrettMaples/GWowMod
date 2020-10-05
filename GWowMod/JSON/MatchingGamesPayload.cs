@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace GWowMod.JSON
 {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
     public class Dependency
     {
         public int id { get; set; }

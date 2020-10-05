@@ -1,6 +1,6 @@
-﻿using GWowMod.Requests;
-using MediatR;
+﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Extensions.Http;
@@ -59,9 +59,6 @@ namespace GWowMod
                 .AddSingleton<IWowPathProvider, WowPathProvider>()
                 .AddLogging(x => x.AddConsole());
 
-            // var foo = Policy.Handle<IOException>()
-            //     .RetryAsync(3);
-
             serviceCollection.AddRefitClient<ICurseForgeClient>()
                 .ConfigureHttpClient(client =>
                 {
@@ -71,21 +68,22 @@ namespace GWowMod
                 .AddPolicyHandler(retryPolicy)
                 .AddPolicyHandler(timeoutPolicy); // We place the timeoutPolicy inside the retryPolicy, to make it time out each try.
 
-            serviceCollection.AddHttpClient<IRequestHandler<UpdateAddonRequest>, UpdateAddonRequestHandler>()
-                .ConfigureHttpClient(client =>
-                {
-                    client.Timeout = TimeSpan.FromSeconds(60); // Overall timeout across all tries
-                })
-                .AddPolicyHandler(retryPolicy)
-                .AddPolicyHandler(timeoutPolicy); // We place the timeoutPolicy inside the retryPolicy, to make it time out each try.
-            
-            serviceCollection.AddHttpClient<IRequestHandler<UpdateAllAddonsRequest>, UpdateAllAddonsRequestHandler>()
-                .ConfigureHttpClient(client =>
-                {
-                    client.Timeout = TimeSpan.FromSeconds(60); // Overall timeout across all tries
-                })
-                .AddPolicyHandler(retryPolicy)
-                .AddPolicyHandler(timeoutPolicy); // We place the timeoutPolicy inside the retryPolicy, to make it time out each try.
+            serviceCollection.AddHttpClient();
+
+            var builder = new HttpClientBuilder(serviceCollection, "DefaultClient");
+
+            builder.Services.AddTransient(s =>
+            {
+                var httpClientFactory = s.GetRequiredService<IHttpClientFactory>();
+                var client = httpClientFactory.CreateClient("DefaultClient");
+
+                client.Timeout = TimeSpan.FromSeconds(60); // Overall timeout across all tries
+
+                return client;
+            });
+
+            builder.AddHttpMessageHandler(() => new PolicyHttpMessageHandler(retryPolicy));
+            builder.AddHttpMessageHandler(() => new PolicyHttpMessageHandler(timeoutPolicy));
 
             serviceCollection.AddMediatR(typeof(Program).Assembly);
 
@@ -115,6 +113,18 @@ namespace GWowMod
             public bool UpdateAddons { get; set; }
             public bool Addons { get; set; }
             public int? UpdateAddon { get; set; }
+        }
+
+        private class HttpClientBuilder : IHttpClientBuilder
+        {
+            public HttpClientBuilder(IServiceCollection services, string name)
+            {
+                Services = services;
+                Name = name;
+            }
+
+            public string Name { get; }
+            public IServiceCollection Services { get; }
         }
     }
 }
