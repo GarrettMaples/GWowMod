@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GWowMod
 {
-    internal interface IWowPathProvider
+    public interface IWowPathProvider
     {
         Task SaveInstallPath(string installPath);
         Task<string> GetInstallPath();

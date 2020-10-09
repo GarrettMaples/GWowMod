@@ -1,100 +1,101 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.ApplicationModel;
+﻿using GWowMod.UI.Core.Services;
+using GWowMod.UI.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Practices.Unity;
+using Prism.Mvvm;
+using Prism.Unity.Windows;
+using Prism.Windows.AppModel;
+using Prism.Windows.Navigation;
+using System;
+using System.Globalization;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.ApplicationModel.Resources;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
+using UnhandledExceptionEventArgs = Windows.UI.Xaml.UnhandledExceptionEventArgs;
+using Unity.Microsoft.DependencyInjection;
 
 namespace GWowMod.UI
 {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
-    sealed partial class App : Application
+    [Bindable]
+    public sealed partial class App : PrismUnityApplication
     {
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
         public App()
         {
-            this.InitializeComponent();
-            this.Suspending += OnSuspending;
+            InitializeComponent();
+            UnhandledException += OnAppUnhandledException;
         }
 
-        /// <summary>
-        /// Invoked when the application is launched normally by the end user.  Other entry points
-        /// will be used such as when the application is launched to open a specific file.
-        /// </summary>
-        /// <param name="e">Details about the launch request and process.</param>
-        protected override void OnLaunched(LaunchActivatedEventArgs e)
+        protected override void ConfigureContainer()
         {
-            Frame rootFrame = Window.Current.Content as Frame;
+            base.ConfigureContainer();
+            Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
+            Container.RegisterType<ISampleDataService, SampleDataService>();
 
-            // Do not repeat app initialization when the Window already has content,
-            // just ensure that the window is active
-            if (rootFrame == null)
+            IServiceCollection serviceCollection = new ServiceCollection();
+            Bootstrapper.Bootstrap(serviceCollection);
+
+            serviceCollection.BuildServiceProvider(Container);
+
+            Container
+        }
+
+        protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
+        {
+            await LaunchApplicationAsync(PageTokens.MainPage, null);
+        }
+
+        private async Task LaunchApplicationAsync(string page, object launchParam)
+        {
+            NavigationService.Navigate(page, launchParam);
+            Window.Current.Activate();
+            await Task.CompletedTask;
+        }
+
+        protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
+        {
+            await Task.CompletedTask;
+        }
+
+        protected override async Task OnInitializeAsync(IActivatedEventArgs args)
+        {
+            await base.OnInitializeAsync(args);
+
+            // We are remapping the default ViewNamePage and ViewNamePageViewModel naming to ViewNamePage and ViewNameViewModel to
+            // gain better code reuse with other frameworks and pages within Windows Template Studio
+            ViewModelLocationProvider.SetDefaultViewTypeToViewModelTypeResolver((viewType) =>
             {
-                // Create a Frame to act as the navigation context and navigate to the first page
-                rootFrame = new Frame();
-
-                rootFrame.NavigationFailed += OnNavigationFailed;
-
-                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
-                {
-                    //TODO: Load state from previously suspended application
-                }
-
-                // Place the frame in the current Window
-                Window.Current.Content = rootFrame;
-            }
-
-            if (e.PrelaunchActivated == false)
-            {
-                if (rootFrame.Content == null)
-                {
-                    // When the navigation stack isn't restored navigate to the first page,
-                    // configuring the new page by passing required information as a navigation
-                    // parameter
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
-                }
-                // Ensure the current window is active
-                Window.Current.Activate();
-            }
+                var viewModelTypeName = string.Format(CultureInfo.InvariantCulture, "GWowMod.UI.ViewModels.{0}ViewModel, GWowMod.UI", viewType.Name.Substring(0, viewType.Name.Length - 4));
+                return Type.GetType(viewModelTypeName);
+            });
         }
 
-        /// <summary>
-        /// Invoked when Navigation to a certain page fails
-        /// </summary>
-        /// <param name="sender">The Frame which failed navigation</param>
-        /// <param name="e">Details about the navigation failure</param>
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
+        protected override IDeviceGestureService OnCreateDeviceGestureService()
         {
-            throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
+            var service = base.OnCreateDeviceGestureService();
+            service.UseTitleBarBackButton = false;
+            return service;
         }
 
-        /// <summary>
-        /// Invoked when application execution is being suspended.  Application state is saved
-        /// without knowing whether the application will be terminated or resumed with the contents
-        /// of memory still intact.
-        /// </summary>
-        /// <param name="sender">The source of the suspend request.</param>
-        /// <param name="e">Details about the suspend request.</param>
-        private void OnSuspending(object sender, SuspendingEventArgs e)
+        private void OnAppUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            var deferral = e.SuspendingOperation.GetDeferral();
-            //TODO: Save application state and stop any background activity
-            deferral.Complete();
+            // TODO WTS: Please log and handle the exception as appropriate to your scenario
+            // For more info see https://docs.microsoft.com/uwp/api/windows.ui.xaml.application.unhandledexception
+        }
+
+        public void SetNavigationFrame(Frame frame)
+        {
+            var sessionStateService = Container.Resolve<ISessionStateService>();
+            CreateNavigationService(new FrameFacadeAdapter(frame), sessionStateService);
+        }
+
+        protected override UIElement CreateShell(Frame rootFrame)
+        {
+            var shell = Container.Resolve<ShellPage>();
+            shell.SetRootFrame(rootFrame);
+            return shell;
         }
     }
 }

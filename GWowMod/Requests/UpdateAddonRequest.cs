@@ -90,7 +90,7 @@ namespace GWowMod.Requests
                 var workingDirectory = Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GWowMod"));
                 var fileNameAndPath = Path.Combine(workingDirectory.FullName, actualLatesFile.fileName);
 
-                await using (var file = new FileInfo(fileNameAndPath).Create())
+                using (var file = new FileInfo(fileNameAndPath).Create())
                 {
                     var bytes = await response.Content.ReadAsByteArrayAsync();
                     await file.WriteAsync(bytes, 0, bytes.Length, cancellationToken);

@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace GWowMod
 {
-    internal interface IFingerPrintScanner
+    public interface IFingerPrintScanner
     {
         IEnumerable<long> GetFingerPrints(Game game);
     }
@@ -57,7 +57,7 @@ namespace GWowMod
                 }
 
                 byte[] bytes = Encoding.ASCII.GetBytes(empty);
-                var fingerPrint = (long) MurmurHash2.ComputeHash(bytes);
+                var fingerPrint = (long)MurmurHash2.ComputeHash(bytes);
 
                 fingerPrints.Add(fingerPrint);
             }

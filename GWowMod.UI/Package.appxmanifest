@@ -4,18 +4,19 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  IgnorableNamespaces="uap mp">
+  xmlns:genTemplate="http://schemas.microsoft.com/appx/developer/windowsTemplateStudio"
+  IgnorableNamespaces="uap mp genTemplate">
 
   <Identity
-    Name="7a7de1c5-906f-4e58-b34f-a7ff97c153cb"
-    Publisher="CN=garrettmaples"
+    Name="73FD144F-4CE8-4B07-88E6-6B4677AB3191"
+    Publisher="CN=garre"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="7a7de1c5-906f-4e58-b34f-a7ff97c153cb" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="73FD144F-4CE8-4B07-88E6-6B4677AB3191" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>GWowMod.UI</DisplayName>
-    <PublisherDisplayName>garrettmaples</PublisherDisplayName>
+    <PublisherDisplayName>garre</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -32,18 +33,30 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="GWowMod.UI.App">
       <uap:VisualElements
-        DisplayName="GWowMod.UI"
+        DisplayName="ms-resource:AppDisplayName"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="GWowMod.UI"
+        Description="ms-resource:AppDescription"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
+
+      <Extensions>
+      </Extensions>
     </Application>
   </Applications>
 
   <Capabilities>
     <Capability Name="internetClient" />
   </Capabilities>
+
+  <genTemplate:Metadata>
+    <genTemplate:Item Name="generator" Value="Windows Template Studio"/>
+    <genTemplate:Item Name="wizardVersion" Version="v3.8.20273.1" />
+    <genTemplate:Item Name="templatesVersion" Version="v3.8.20273.1" />
+    <genTemplate:Item Name="projectType" Value="TabbedNav" />
+    <genTemplate:Item Name="framework" Value="Prism" />
+    <genTemplate:Item Name="platform" Value="Uwp" />
+  </genTemplate:Metadata>
 </Package>

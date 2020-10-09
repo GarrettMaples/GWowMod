@@ -1,11 +1,10 @@
-﻿using GWowMod.JSON;
-using GWowMod.Requests;
+﻿using GWowMod.Requests;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace GWowMod
+namespace GWowMod.Console
 {
     public interface IGWowModWorker
     {
@@ -61,7 +60,7 @@ namespace GWowMod
             if (cliOptions.Addons)
             {
                 var addonsRequest = new AddonsRequest();
-                MatchingGamesPayload matchingGamesPayload = await _mediator.Send(addonsRequest);
+                var matchingGamesPayload = await _mediator.Send(addonsRequest);
 
                 foreach (var exactMatch in matchingGamesPayload.exactMatches)
                 {
@@ -73,7 +72,7 @@ namespace GWowMod
             if (cliOptions.UpdateAddon.HasValue)
             {
                 var addonsRequest = new AddonsRequest();
-                MatchingGamesPayload matchingGamesPayload = await _mediator.Send(addonsRequest);
+                var matchingGamesPayload = await _mediator.Send(addonsRequest);
 
                 var exactMatch = matchingGamesPayload.exactMatches.FirstOrDefault(x => x.id == cliOptions.UpdateAddon.Value);
                 if (exactMatch == null)
