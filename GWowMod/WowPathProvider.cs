@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -10,11 +12,15 @@ namespace GWowMod
     {
         Task SaveInstallPath(string installPath);
         Task<string> GetInstallPath();
+        Task<IEnumerable<string>> GetInstallPaths();
+        int InstallPathIndex { get; set; }
     }
 
     internal class WowPathProvider : IWowPathProvider
     {
         private readonly ILogger<WowPathProvider> _logger;
+
+        public int InstallPathIndex { get; set; } = 0;
 
         public WowPathProvider(ILogger<WowPathProvider> logger)
         {
@@ -23,49 +29,47 @@ namespace GWowMod
 
         public async Task SaveInstallPath(string installPath)
         {
-            try
+            using (var reader = new StreamReader(File.Open(GetSettingsLocation(), FileMode.OpenOrCreate, FileAccess.Read,
+                FileShare.ReadWrite)))
             {
-                using (var reader = new StreamReader(File.Open(GetSettingsLocation(), FileMode.OpenOrCreate, FileAccess.Read,
+                var settingsText = await reader.ReadToEndAsync();
+
+                GWowModSettings gWowModSettings;
+                if (!string.IsNullOrWhiteSpace(settingsText))
+                {
+                    gWowModSettings = JsonSerializer.Deserialize<GWowModSettings>(settingsText);
+                    gWowModSettings.WowInstallPaths.Add(installPath);
+                }
+                else
+                {
+                    gWowModSettings = new GWowModSettings { WowInstallPaths = new [] { installPath } };
+                }
+
+                using (var writer = new StreamWriter(File.Open(GetSettingsLocation(), FileMode.Truncate, FileAccess.Write,
                     FileShare.ReadWrite)))
                 {
-                    var settingsText = await reader.ReadToEndAsync();
-
-                    GWowModSettings gWowModSettings;
-                    if (!string.IsNullOrWhiteSpace(settingsText))
-                    {
-                        gWowModSettings = JsonSerializer.Deserialize<GWowModSettings>(settingsText);
-                        gWowModSettings.WowInstallPath = installPath;
-                    }
-                    else
-                    {
-                        gWowModSettings = new GWowModSettings { WowInstallPath = installPath };
-                    }
-
-                    using (var writer = new StreamWriter(File.Open(GetSettingsLocation(), FileMode.Truncate, FileAccess.Write,
-                        FileShare.ReadWrite)))
-                    {
-                        await writer.WriteLineAsync(JsonSerializer.Serialize(gWowModSettings));
-                    }
+                    await writer.WriteLineAsync(JsonSerializer.Serialize(gWowModSettings));
                 }
-            }
-            catch (IOException e)
-            {
-                _logger.LogError(e.ToString());
             }
         }
 
         public async Task<string> GetInstallPath()
+        {
+            return (await GetInstallPaths()).FirstOrDefault();
+        }
+
+        public async Task<IEnumerable<string>> GetInstallPaths()
         {
             using (var reader = new StreamReader(File.Open(GetSettingsLocation(), FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite)))
             {
                 var settingsContents = await reader.ReadToEndAsync();
                 if (string.IsNullOrWhiteSpace(settingsContents))
                 {
-                    return string.Empty;
+                    return Enumerable.Empty<string>();
                 }
 
                 var gWowModSettings = JsonSerializer.Deserialize<GWowModSettings>(settingsContents);
-                return GetNormalizedPath(gWowModSettings.WowInstallPath);
+                return gWowModSettings.WowInstallPaths.Select(x => GetNormalizedPath(x));
             }
         }
 
@@ -81,15 +85,15 @@ namespace GWowMod
 
         private string GetSettingsLocation()
         {
-            var appdataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            var directory = Directory.CreateDirectory(Path.Combine(appdataFolder, "GWowMod"));
+            var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var directory = Directory.CreateDirectory(Path.Combine(appDataFolder, "GWowMod"));
 
             return Path.Combine(directory.FullName, "GWowModSettings.json");
         }
 
         private class GWowModSettings
         {
-            public string WowInstallPath { get; set; }
+            public IList<string> WowInstallPaths { get; set; }
         }
     }
 }

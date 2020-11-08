@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
 
 namespace GWowMod.JSON
 {
@@ -28,15 +30,26 @@ namespace GWowMod.JSON
 
     public class File
     {
-        public int id { get; set; }
+        [JsonProperty("Id")]
+        public int Id { get; set; }
         public string displayName { get; set; }
-        public string fileName { get; set; }
-        public DateTime fileDate { get; set; }
+
+        [JsonProperty("FileName")]
+        public string FileName { get; set; }
+
+        [JsonProperty("FileDate")]
+        public DateTime FileDate { get; set; }
         public int fileLength { get; set; }
-        public ProjectFileReleaseType releaseType { get; set; }
+
+        [JsonProperty("ReleaseType")]
+        public ProjectFileReleaseType ReleaseType { get; set; }
         public int fileStatus { get; set; }
-        public string downloadUrl { get; set; }
-        public bool isAlternate { get; set; }
+
+        [JsonProperty("DownloadUrl")]
+        public string DownloadUrl { get; set; }
+
+        [JsonProperty("IsAlternate")]
+        public bool IsAlternate { get; set; }
         public int alternateFileId { get; set; }
         public List<Dependency> dependencies { get; set; }
         public bool isAvailable { get; set; }
@@ -61,7 +74,9 @@ namespace GWowMod.JSON
         public int packageFingerprintId { get; set; }
         public DateTime gameVersionDateReleased { get; set; }
         public int gameVersionMappingId { get; set; }
-        public int gameVersionId { get; set; }
+
+        [JsonProperty("gameVersionId")]
+        public int GameVersionId { get; set; }
         public int gameId { get; set; }
         public bool isServerPack { get; set; }
         public object serverPackFileId { get; set; }
@@ -93,18 +108,31 @@ namespace GWowMod.JSON
 
     public class LatestFile
     {
-        public int id { get; set; }
+        [JsonProperty("Id")]
+        public int Id { get; set; }
         public string displayName { get; set; }
-        public string fileName { get; set; }
-        public DateTime fileDate { get; set; }
+
+        [JsonProperty("FileName")]
+        public string FileName { get; set; }
+
+        [JsonProperty("FileDate")]
+        public DateTime FileDate { get; set; }
         public int fileLength { get; set; }
-        public ProjectFileReleaseType releaseType { get; set; }
+
+        [JsonProperty("ReleaseType")]
+        public ProjectFileReleaseType ReleaseType { get; set; }
         public int fileStatus { get; set; }
-        public string downloadUrl { get; set; }
-        public bool isAlternate { get; set; }
+
+        [JsonProperty("DownloadUrl")]
+        public string DownloadUrl { get; set; }
+
+        [JsonProperty("IsAlternate")]
+        public bool IsAlternate { get; set; }
         public int alternateFileId { get; set; }
         public List<Dependency2> dependencies { get; set; }
-        public bool isAvailable { get; set; }
+
+        [JsonProperty("IsAvailable")]
+        public bool IsAvailable { get; set; }
         public List<Module2> modules { get; set; }
         public object packageFingerprint { get; set; }
         public List<string> gameVersion { get; set; }
@@ -126,7 +154,9 @@ namespace GWowMod.JSON
         public int packageFingerprintId { get; set; }
         public DateTime gameVersionDateReleased { get; set; }
         public int gameVersionMappingId { get; set; }
-        public int gameVersionId { get; set; }
+
+        [JsonProperty("gameVersionId")]
+        public int GameVersionId { get; set; }
         public int gameId { get; set; }
         public bool isServerPack { get; set; }
         public object serverPackFileId { get; set; }
@@ -135,9 +165,29 @@ namespace GWowMod.JSON
 
     public class ExactMatch
     {
-        public int id { get; set; }
-        public File file { get; set; }
-        public List<LatestFile> latestFiles { get; set; }
+        public int Id { get; set; }
+
+        [JsonProperty("file")]
+        public File File { get; set; }
+
+        [JsonProperty("LatestFiles")]
+        public List<LatestFile> LatestFiles { get; set; }
+
+        private LatestFile _latestFile;
+
+        public LatestFile LatestFile
+        {
+            get
+            {
+                return _latestFile ??= LatestFiles
+                    .Where(x => x.GameVersionId == File.GameVersionId)
+                    .Where(x => x.ReleaseType == File.ReleaseType)
+                    .Where(x => x.IsAlternate == File.IsAlternate)
+                    .Where(x => x.IsAvailable)
+                    .OrderByDescending(x => x.FileDate)
+                    .FirstOrDefault(); ;
+            }
+        }
     }
 
     public class PartialMatchFingerprints

@@ -157,7 +157,7 @@ namespace GWowMod
                         string str = match.Groups[1].Value;
                         // if (FilePathHasInvalidChars(str))
                         // {
-                        //   // Folder.Logger.Error("Invalid include file", (object) new
+                        //   // Folder.Logger.Error("Invalid include File", (object) new
                         //   // {
                         //   //   File = str
                         //   // });
@@ -167,7 +167,7 @@ namespace GWowMod
                     }
                     catch (Exception ex)
                     {
-                        // Folder.Logger.Error(ex, "Invalid include file", match.Groups.Count > 1 ? (object) new
+                        // Folder.Logger.Error(ex, "Invalid include File", match.Groups.Count > 1 ? (object) new
                         // {
                         //   File = match.Groups[1].Value
                         // } : (object) null);

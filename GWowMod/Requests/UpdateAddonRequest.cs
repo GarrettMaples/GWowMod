@@ -42,61 +42,61 @@ namespace GWowMod.Requests
 
             foreach (var exactMatch in request.ExactMatches)
             {
-                _logger.LogInformation($"Updating {exactMatch.file.modules[0].foldername}...");
+                _logger.LogInformation($"Updating {exactMatch.File.modules[0].foldername}...");
 
-                LatestFile actualLatesFile = null;
+                //LatestFile actualLatestFile = null;
 
-                foreach (var latestFile in exactMatch.latestFiles)
+                //foreach (var latestFile in exactMatch.LatestFiles)
+                //{
+                //    if (exactMatch.File.gameVersionFlavor != null && (latestFile.gameVersionFlavor == null
+                //        || latestFile.gameVersionFlavor != exactMatch.File.gameVersionFlavor))
+                //    {
+                //        continue;
+                //    }
+
+                //    if (exactMatch.File.categorySectionPackageType == GameSectionPackageMapPackageType.Folder)
+                //    {
+                //        if (latestFile == null || !latestFile.IsAvailable || latestFile.IsAlternate)
+                //        {
+                //            continue;
+                //        }
+                //    }
+                //    else if (latestFile == null || !latestFile.IsAvailable)
+                //    {
+                //        continue;
+                //    }
+
+                //    if (latestFile.ReleaseType == _preferredReleaseType && (actualLatestFile == null || latestFile.FileDate > actualLatestFile.FileDate))
+                //    {
+                //        actualLatestFile = latestFile;
+                //    }
+                //}
+
+                if (exactMatch.LatestFile == null)
                 {
-                    if (exactMatch.file.gameVersionFlavor != null && (latestFile.gameVersionFlavor == null
-                        || latestFile.gameVersionFlavor != exactMatch.file.gameVersionFlavor))
-                    {
-                        continue;
-                    }
-
-                    if (exactMatch.file.categorySectionPackageType == GameSectionPackageMapPackageType.Folder)
-                    {
-                        if (latestFile == null || !latestFile.isAvailable || latestFile.isAlternate)
-                        {
-                            continue;
-                        }
-                    }
-                    else if (latestFile == null || !latestFile.isAvailable)
-                    {
-                        continue;
-                    }
-
-                    if (latestFile.releaseType == _preferredReleaseType && (actualLatesFile == null || latestFile.fileDate > actualLatesFile.fileDate))
-                    {
-                        actualLatesFile = latestFile;
-                    }
-                }
-
-                if (actualLatesFile == null)
-                {
-                    _logger.LogInformation($"Latest file for {exactMatch.file.modules[0].foldername} not found");
+                    _logger.LogInformation($"Latest File for {exactMatch.File.modules[0].foldername} not found");
                     return Unit.Value;
                 }
 
-                if (actualLatesFile.id == exactMatch.id)
+                if (exactMatch.LatestFile.Id == exactMatch.Id)
                 {
-                    _logger.LogInformation($"{exactMatch.file.modules[0].foldername} - Version: {exactMatch.file.fileName} is the latest and is already installed.");
+                    _logger.LogInformation($"{exactMatch.File.modules[0].foldername} - Version: {exactMatch.File.FileName} is the latest and is already installed.");
                     return Unit.Value;
                 }
 
-                var response = (await _httpClient.GetAsync(actualLatesFile.downloadUrl))
+                var response = (await _httpClient.GetAsync(exactMatch.LatestFile.DownloadUrl, cancellationToken))
                     .EnsureSuccessStatusCode();
 
                 var workingDirectory = Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GWowMod"));
-                var fileNameAndPath = Path.Combine(workingDirectory.FullName, actualLatesFile.fileName);
+                var fileNameAndPath = Path.Combine(workingDirectory.FullName, exactMatch.LatestFile.FileName);
 
-                using (var file = new FileInfo(fileNameAndPath).Create())
+                await using (var file = new FileInfo(fileNameAndPath).Create())
                 {
                     var bytes = await response.Content.ReadAsByteArrayAsync();
                     await file.WriteAsync(bytes, 0, bytes.Length, cancellationToken);
                 }
 
-                foreach (var module in exactMatch.file.modules)
+                foreach (var module in exactMatch.File.modules)
                 {
                     var moduleToDelete = Path.Combine(installPath, module.foldername);
 
@@ -109,7 +109,7 @@ namespace GWowMod.Requests
 
                 File.Delete(fileNameAndPath);
 
-                _logger.LogInformation($"Finished updating {exactMatch.file.modules[0].foldername} from {exactMatch.file.fileName} to {actualLatesFile.fileName}...");
+                _logger.LogInformation($"Finished updating {exactMatch.File.modules[0].foldername} from {exactMatch.File.FileName} to {exactMatch.LatestFile.FileName}...");
             }
 
             return Unit.Value;
