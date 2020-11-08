@@ -35,8 +35,8 @@ namespace GWowMod.Console
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<IGWowModWorker, GWowModWorker>()
                 .AddLogging(x => x.AddConsole());
-            
-            Bootstrapper.Bootstrap(serviceCollection);
+
+            serviceCollection.AddGWowMod();
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 

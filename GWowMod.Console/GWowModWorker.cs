@@ -64,8 +64,8 @@ namespace GWowMod.Console
 
                 foreach (var exactMatch in matchingGamesPayload.exactMatches)
                 {
-                    _logger.LogInformation($"Id: {exactMatch.file.id} Name: {exactMatch.file.modules[0].foldername} " +
-                        $"Version: {exactMatch.file.fileName} File Date: {exactMatch.file.fileDate}");
+                    _logger.LogInformation($"Id: {exactMatch.File.Id} Name: {exactMatch.File.modules[0].foldername} " +
+                        $"Version: {exactMatch.File.FileName} File Date: {exactMatch.File.FileDate}");
                 }
             }
 
@@ -74,7 +74,7 @@ namespace GWowMod.Console
                 var addonsRequest = new AddonsRequest();
                 var matchingGamesPayload = await _mediator.Send(addonsRequest);
 
-                var exactMatch = matchingGamesPayload.exactMatches.FirstOrDefault(x => x.id == cliOptions.UpdateAddon.Value);
+                var exactMatch = matchingGamesPayload.exactMatches.FirstOrDefault(x => x.Id == cliOptions.UpdateAddon.Value);
                 if (exactMatch == null)
                 {
                     _logger.LogInformation($"Unable to find addon with Id: {cliOptions.UpdateAddon.Value}");

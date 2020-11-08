@@ -33,15 +33,7 @@ namespace GWowMod
 
         public static string GetPlatformSafePath(this CategorySection section)
         {
-            try
-            {
-                return section.Path == null ? section.Path : section.Path.Replace('\\', Path.DirectorySeparatorChar);
-            }
-            catch (Exception ex)
-            {
-                // Logger<>.Error(ex, (string) null, (object) null);
-                return section.Path;
-            }
+            return section.Path == null ? section.Path : section.Path.Replace('\\', Path.DirectorySeparatorChar);
         }
     }
 }
