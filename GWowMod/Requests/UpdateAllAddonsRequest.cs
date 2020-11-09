@@ -1,4 +1,5 @@
-﻿using GWowMod.JSON;
+﻿using System.Linq;
+using GWowMod.JSON;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Threading;
@@ -8,6 +9,12 @@ namespace GWowMod.Requests
 {
     public class UpdateAllAddonsRequest : IRequest
     {
+        public UpdateAllAddonsRequest(string installPath)
+        {
+            InstallPath = installPath;
+        }
+
+        public string InstallPath { get; }
     }
 
     internal class UpdateAllAddonsRequestHandler : IRequestHandler<UpdateAllAddonsRequest>
@@ -25,10 +32,10 @@ namespace GWowMod.Requests
 
         public async Task<Unit> Handle(UpdateAllAddonsRequest request, CancellationToken cancellationToken)
         {
-            var addonsRequest = new AddonsRequest();
+            var addonsRequest = new AddonsRequest(request.InstallPath);
             MatchingGamesPayload matchingGamesPayload = await _mediator.Send(addonsRequest, cancellationToken);
 
-            var updateAddonRequest = new UpdateAddonRequest(matchingGamesPayload.exactMatches.ToArray());
+            var updateAddonRequest = new UpdateAddonRequest(request.InstallPath, matchingGamesPayload.exactMatches.Where(x => x.LatestFile != null && x.LatestFile.Id != x.Id).ToArray());
             return await _mediator.Send(updateAddonRequest, cancellationToken);
         }
     }

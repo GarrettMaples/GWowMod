@@ -53,13 +53,13 @@ namespace GWowMod.Console
 
             if (cliOptions.UpdateAddons)
             {
-                var updateAllAddonsRequest = new UpdateAllAddonsRequest();
+                var updateAllAddonsRequest = new UpdateAllAddonsRequest(await _wowPathProvider.GetInstallPath());
                 await _mediator.Send(updateAllAddonsRequest);
             }
 
             if (cliOptions.Addons)
             {
-                var addonsRequest = new AddonsRequest();
+                var addonsRequest = new AddonsRequest(await _wowPathProvider.GetInstallPath());
                 var matchingGamesPayload = await _mediator.Send(addonsRequest);
 
                 foreach (var exactMatch in matchingGamesPayload.exactMatches)
@@ -71,7 +71,7 @@ namespace GWowMod.Console
 
             if (cliOptions.UpdateAddon.HasValue)
             {
-                var addonsRequest = new AddonsRequest();
+                var addonsRequest = new AddonsRequest(await _wowPathProvider.GetInstallPath());
                 var matchingGamesPayload = await _mediator.Send(addonsRequest);
 
                 var exactMatch = matchingGamesPayload.exactMatches.FirstOrDefault(x => x.Id == cliOptions.UpdateAddon.Value);
@@ -81,7 +81,7 @@ namespace GWowMod.Console
                 }
                 else
                 {
-                    var updateAddonRequest = new UpdateAddonRequest();
+                    var updateAddonRequest = new UpdateAddonRequest(await _wowPathProvider.GetInstallPath());
                     await _mediator.Send(updateAddonRequest);
                 }
             }

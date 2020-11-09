@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using System.Windows;
 using GWowMod.Desktop.Contracts.Services;
 using GWowMod.Desktop.Contracts.Views;
 using GWowMod.Desktop.ViewModels;
@@ -53,14 +53,14 @@ namespace GWowMod.Desktop.Services
 
         private async Task HandleActivationAsync()
         {
-            if (App.Current.Windows.OfType<IShellWindow>().Count() == 0)
+            if (!Application.Current.Windows.OfType<IShellWindow>().Any())
             {
                 // Default activation that navigates to the apps default page
-                _shellWindow = _serviceProvider.GetService(typeof(IShellWindow)) as IShellWindow;
+                _shellWindow = _serviceProvider.GetService(typeof(IShellWindow)) as IShellWindow ?? throw new InvalidOperationException($"Unable to retrieve instance of IShellWindow.");
                 _navigationService.Initialize(_shellWindow.GetNavigationFrame());
                 _rightPaneService.Initialize(_shellWindow.GetRightPaneFrame(), _shellWindow.GetSplitView());
                 _shellWindow.ShowWindow();
-                _navigationService.NavigateTo(typeof(MainViewModel).FullName);
+                _navigationService.NavigateTo(typeof(InstalledAddonsViewModel).FullName);
                 await Task.CompletedTask;
             }
         }

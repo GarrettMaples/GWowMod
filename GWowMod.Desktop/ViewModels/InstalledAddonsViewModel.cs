@@ -16,44 +16,63 @@ namespace GWowMod.Desktop.ViewModels
     public class InstalledAddonsViewModel : Observable, INavigationAware
     {
         private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
+        private readonly ShellViewModel _viewModel;
 
-        private bool _initialized;
         private ICommand _refreshInstalledAddonsCommand;
         private ICommand _updateAddonCommand;
-        private readonly IMapper _mapper;
+        private ICommand _updateAllAddonsCommand;
 
         public ICommand RefreshInstalledAddonsCommand =>
-            _refreshInstalledAddonsCommand ??= new RelayCommand(async () => await LoadInstalledAddons());
+            _refreshInstalledAddonsCommand ??= new RelayCommand(async () => await LoadInstalledAddons(_viewModel.InstallPathValue));
 
         public ICommand UpdateAddonCommand => _updateAddonCommand ??= new RelayCommand<int>(async (x) => await UpdateAddon(x));
+
+        public ICommand UpdateAllAddonsCommand => _updateAllAddonsCommand ??= new RelayCommand(async () =>
+        {
+            await Task.Run(async () =>
+            {
+                var updateAllAddonsRequest = new UpdateAllAddonsRequest(_viewModel.InstallPathValue);
+                await _mediator.Send(updateAllAddonsRequest);
+            });
+
+            await LoadInstalledAddons(_viewModel.InstallPathValue);
+        });
+
         public ObservableCollection<InstalledAddonModel> Source { get; } = new ObservableCollection<InstalledAddonModel>();
 
-        public InstalledAddonsViewModel(IMediator mediator, IMapper mapper)
+        public InstalledAddonsViewModel(IMediator mediator, IMapper mapper, ShellViewModel viewModel)
         {
             _mediator = mediator;
             _mapper = mapper;
-        }
+            _viewModel = viewModel;
 
-        public async void OnNavigatedTo(object parameter)
-        {
-            if (_initialized)
+            viewModel.PropertyChanged += async (sender, args) =>
             {
-                return;
-            }
+                var installPathValue = ((ShellViewModel)sender).InstallPathValue;
 
-            await LoadInstalledAddons();
-            _initialized = true;
+                if (args.PropertyName != nameof(ShellViewModel.InstallPathValue) || string.IsNullOrWhiteSpace(installPathValue))
+                {
+                    return;
+                }
+
+                await LoadInstalledAddons(installPathValue);
+            };
         }
 
-        public async Task LoadInstalledAddons()
+        public void OnNavigatedTo(object parameter)
+        {
+        }
+
+        public async Task LoadInstalledAddons(string installPath)
         {
             OnLoading();
 
             Source.Clear();
-
+            
             var addonsResult = await Task.Run(async () =>
             {
-                var addonsRequest = new AddonsRequest();
+                var addonsRequest = new AddonsRequest(installPath);
                 var matchingGamesPayload = await _mediator.Send(addonsRequest);
 
                 return matchingGamesPayload;
@@ -70,19 +89,22 @@ namespace GWowMod.Desktop.ViewModels
 
         public async Task UpdateAddon(int id)
         {
-            var addonsRequest = new AddonsRequest();
-            var matchingGamesPayload = await _mediator.Send(addonsRequest);
-
-            var exactMatch = matchingGamesPayload.exactMatches.FirstOrDefault(x => x.Id == id);
-            if (exactMatch == null)
+            await Task.Run(async () =>
             {
-                throw new InvalidOperationException($"Unable to find addon with Id: {id}");
-            }
+                var addonsRequest = new AddonsRequest(_viewModel.InstallPathValue);
+                var matchingGamesPayload = await _mediator.Send(addonsRequest);
 
-            var updateAddonRequest = new UpdateAddonRequest(exactMatch);
-            await _mediator.Send(updateAddonRequest);
+                var exactMatch = matchingGamesPayload.exactMatches.FirstOrDefault(x => x.Id == id);
+                if (exactMatch == null)
+                {
+                    throw new InvalidOperationException($"Unable to find addon with Id: {id}");
+                }
 
-            await LoadInstalledAddons();
+                var updateAddonRequest = new UpdateAddonRequest(_viewModel.InstallPathValue, exactMatch);
+                await _mediator.Send(updateAddonRequest);
+            });
+
+            await LoadInstalledAddons(_viewModel.InstallPathValue);
         }
 
         public virtual event EventHandler Loading;

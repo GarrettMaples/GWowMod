@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using GWowMod.Desktop.Contracts.Services;
 using GWowMod.Desktop.Helpers;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace GWowMod.Desktop.ViewModels
 {
@@ -16,8 +18,8 @@ namespace GWowMod.Desktop.ViewModels
     {
         private readonly INavigationService _navigationService;
         private readonly IRightPaneService _rightPaneService;
-
         private readonly IWowPathProvider _wowPathProvider;
+        private readonly CommonOpenFileDialog _addAddonOpenFileDialog;
 
         private RelayCommand _goBackCommand;
         private ICommand _menuViewsDataGridCommand;
@@ -25,9 +27,9 @@ namespace GWowMod.Desktop.ViewModels
         private ICommand _menuFileExitCommand;
         private ICommand _loadedCommand;
         private ICommand _unloadedCommand;
+        private ICommand _addAddonLocationCommand;
 
         private bool _initialized;
-        private int _installPathIndex;
 
         public RelayCommand GoBackCommand => _goBackCommand ??= new RelayCommand(OnGoBack, CanGoBack);
 
@@ -37,23 +39,48 @@ namespace GWowMod.Desktop.ViewModels
 
         public ICommand UnloadedCommand => _unloadedCommand ??= new RelayCommand(OnUnloaded);
 
-        public ObservableCollection<string> Source { get; } = new ObservableCollection<string>();
-
-        public int InstallPathIndex
+        public ICommand AddAddonLocationCommand => _addAddonLocationCommand ??= new RelayCommand(async () =>
         {
-            get => _installPathIndex;
-            set
+            _addAddonOpenFileDialog.IsFolderPicker = true;
+
+            if (_addAddonOpenFileDialog.ShowDialog() != CommonFileDialogResult.Ok)
             {
-                _wowPathProvider.InstallPathIndex = value;
-                _installPathIndex = value;
+                return;
             }
+
+            var path = _addAddonOpenFileDialog.FileName;
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return;
+            }
+
+            if (!path.TrimEnd('\\').EndsWith(@"Interface\AddOns"))
+            {
+                MessageBox.Show($@"Path should end with: Interface\AddOns", "Invalid Path", MessageBoxButton.OK, MessageBoxImage.Error, MessageBoxResult.OK);
+                return;
+            }
+
+            await _wowPathProvider.SaveInstallPath(path);
+            await LoadWowInstallPaths();
+            InstallPathValue = Source.LastOrDefault();
+        });
+
+        public ObservableCollection<string> Source { get; set; } = new ObservableCollection<string>();
+
+        private string _installPathValue;
+
+        public string InstallPathValue
+        {
+            get => _installPathValue;
+            set => Set(ref _installPathValue, value);
         }
 
-        public ShellViewModel(INavigationService navigationService, IRightPaneService rightPaneService, IWowPathProvider wowPathProvider)
+        public ShellViewModel(INavigationService navigationService, IRightPaneService rightPaneService, IWowPathProvider wowPathProvider, CommonOpenFileDialog addAddonOpenFileDialog)
         {
             _navigationService = navigationService;
             _rightPaneService = rightPaneService;
             _wowPathProvider = wowPathProvider;
+            _addAddonOpenFileDialog = addAddonOpenFileDialog;
         }
 
         public virtual event EventHandler Loading;
@@ -62,14 +89,22 @@ namespace GWowMod.Desktop.ViewModels
 
         private async void OnLoaded()
         {
-            Loading?.Invoke(this, EventArgs.Empty);
-
             _navigationService.Navigated += OnNavigated;
 
             if (_initialized)
             {
                 return;
             }
+
+            await LoadWowInstallPaths();
+            InstallPathValue = Source.FirstOrDefault();
+        }
+
+        private async Task LoadWowInstallPaths()
+        {
+            Loading?.Invoke(this, EventArgs.Empty);
+
+            Source.Clear();
 
             foreach (var wowInstallPath in await _wowPathProvider.GetInstallPaths())
             {

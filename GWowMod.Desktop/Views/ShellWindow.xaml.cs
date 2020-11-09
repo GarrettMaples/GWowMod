@@ -8,21 +8,10 @@ namespace GWowMod.Desktop.Views
 {
     public partial class ShellWindow : MetroWindow, IShellWindow
     {
-        private readonly ShellViewModel _viewModel;
-
         public ShellWindow(ShellViewModel viewModel)
         {
             InitializeComponent();
             DataContext = viewModel;
-            WowInstalls.ItemsSource = viewModel.Source;
-            _viewModel = viewModel;
-
-            viewModel.LoadingComplete += ViewModel_OnLoadingComplete;
-        }
-
-        private void ViewModel_OnLoadingComplete(object sender, EventArgs e)
-        {
-            WowInstalls.SelectedIndex = _viewModel.InstallPathIndex;
         }
 
         protected override void OnActivated(EventArgs e)
@@ -30,10 +19,10 @@ namespace GWowMod.Desktop.Views
         }
 
         public Frame GetNavigationFrame()
-            => shellFrame;
+            => ShellFrame;
 
         public Frame GetRightPaneFrame()
-            => rightPaneFrame;
+            => RightPaneFrame;
 
         public void ShowWindow()
             => Show();
@@ -42,11 +31,6 @@ namespace GWowMod.Desktop.Views
             => Close();
 
         public SplitView GetSplitView()
-            => splitView;
-
-        private void WowInstalls_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            _viewModel.InstallPathIndex = ((ComboBox) sender).SelectedIndex;
-        }
+            => SplitView;
     }
 }

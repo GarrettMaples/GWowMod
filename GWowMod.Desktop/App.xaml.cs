@@ -12,6 +12,7 @@ using GWowMod.Desktop.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace GWowMod.Desktop
 {
@@ -58,7 +59,7 @@ namespace GWowMod.Desktop
 
             // Views and ViewModels
             services.AddTransient<IShellWindow, ShellWindow>();
-            services.AddTransient<ShellViewModel>();
+            services.AddSingleton<ShellViewModel>();
 
             services.AddTransient<MainViewModel>();
             services.AddTransient<MainPage>();
@@ -68,6 +69,8 @@ namespace GWowMod.Desktop
 
             services.AddTransient<IShellDialogWindow, ShellDialogWindow>();
             services.AddTransient<ShellDialogViewModel>();
+
+            services.AddTransient<CommonOpenFileDialog>();
 
             // Configuration
             services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));

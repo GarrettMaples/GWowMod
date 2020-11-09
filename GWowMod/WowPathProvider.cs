@@ -13,14 +13,14 @@ namespace GWowMod
         Task SaveInstallPath(string installPath);
         Task<string> GetInstallPath();
         Task<IEnumerable<string>> GetInstallPaths();
-        int InstallPathIndex { get; set; }
+        string InstallPathValue { get; set; }
     }
 
     internal class WowPathProvider : IWowPathProvider
     {
         private readonly ILogger<WowPathProvider> _logger;
 
-        public int InstallPathIndex { get; set; } = 0;
+        public string InstallPathValue { get; set; } = string.Empty;
 
         public WowPathProvider(ILogger<WowPathProvider> logger)
         {

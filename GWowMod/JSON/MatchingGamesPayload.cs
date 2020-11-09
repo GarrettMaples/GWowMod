@@ -80,7 +80,9 @@ namespace GWowMod.JSON
         public int gameId { get; set; }
         public bool isServerPack { get; set; }
         public object serverPackFileId { get; set; }
-        public string gameVersionFlavor { get; set; }
+
+        [JsonProperty("gameVersionFlavor")]
+        public string GameVersionFlavor { get; set; }
     }
 
     public class Dependency2
@@ -160,7 +162,9 @@ namespace GWowMod.JSON
         public int gameId { get; set; }
         public bool isServerPack { get; set; }
         public object serverPackFileId { get; set; }
-        public string gameVersionFlavor { get; set; }
+
+        [JsonProperty("gameVersionFlavor")]
+        public string GameVersionFlavor { get; set; }
     }
 
     public class ExactMatch
@@ -180,12 +184,12 @@ namespace GWowMod.JSON
             get
             {
                 return _latestFile ??= LatestFiles
-                    .Where(x => x.GameVersionId == File.GameVersionId)
+                    .Where(x => x.GameVersionFlavor == File.GameVersionFlavor)
                     .Where(x => x.ReleaseType == File.ReleaseType)
                     .Where(x => x.IsAlternate == File.IsAlternate)
                     .Where(x => x.IsAvailable)
                     .OrderByDescending(x => x.FileDate)
-                    .FirstOrDefault(); ;
+                    .FirstOrDefault();
             }
         }
     }

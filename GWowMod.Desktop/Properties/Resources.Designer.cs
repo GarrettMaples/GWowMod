@@ -117,9 +117,9 @@ namespace GWowMod.Desktop.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Installed Addons.
         /// </summary>
-        public static string ShellMenuItemViewsDataGridPageHeader {
+        public static string ShellMenuItemViewsInstalledAddonsPageHeader {
             get {
-                return ResourceManager.GetString("ShellMenuItemViewsDataGridPageHeader", resourceCulture);
+                return ResourceManager.GetString("ShellMenuItemViewsInstalledAddonsPageHeader", resourceCulture);
             }
         }
         
