@@ -11,9 +11,9 @@ namespace GWowMod.Desktop.Models
         public DateTime FileDate { get; set; }
         public string DownloadUrl { get; set; }
         public bool HasUpdate { get; set; }
-        public string UpdateFileName { get; set; }
-        public DateTime? UpdateFileDate { get; set; }
-        public string UpdateDownloadUrl { get; set; }
+        public string LatestFileName { get; set; }
+        public DateTime? LatestFileDate { get; set; }
+        public string LatestDownloadUrl { get; set; }
     }
 
     internal class InstalledAddonModelMapping : Profile
@@ -48,17 +48,17 @@ namespace GWowMod.Desktop.Models
                 )
                 .ForMember
                 (
-                    dest => dest.UpdateFileName,
+                    dest => dest.LatestFileName,
                     opt => opt.MapFrom(x => x.LatestFile != null && x.LatestFile.Id != x.File.Id ? x.LatestFile.FileName : string.Empty)
                 )
                 .ForMember
                 (
-                    dest => dest.UpdateFileDate,
+                    dest => dest.LatestFileDate,
                     opt => opt.MapFrom(x => x.LatestFile != null && x.LatestFile.Id != x.File.Id ? x.LatestFile.FileDate : (DateTime?) null)
                 )
                 .ForMember
                 (
-                    dest => dest.UpdateDownloadUrl,
+                    dest => dest.LatestDownloadUrl,
                     opt => opt.MapFrom(x => x.LatestFile != null && x.LatestFile.Id != x.File.Id ? x.LatestFile.DownloadUrl : string.Empty)
                 );
         }

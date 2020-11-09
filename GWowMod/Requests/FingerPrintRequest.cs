@@ -10,24 +10,27 @@ namespace GWowMod.Requests
 {
     public class FingerPrintRequest : IRequest<IEnumerable<long>>
     {
+        public FingerPrintRequest(string installPath)
+        {
+            InstallPath = installPath;
+        }
+
+        public string InstallPath { get; }
     }
 
     internal class FingerPrintRequestHandler : IRequestHandler<FingerPrintRequest, IEnumerable<long>>
     {
-        private readonly IWowPathProvider _wowPathProvider;
         private readonly ILogger<UpdateAddonRequestHandler> _logger;
         private readonly IFingerPrintScanner _fingerPrintScanner;
         private readonly ICurseForgeClient _curseForgeClient;
 
         public FingerPrintRequestHandler
         (
-            IWowPathProvider wowPathProvider,
             ILogger<UpdateAddonRequestHandler> logger,
             IFingerPrintScanner fingerPrintScanner,
             ICurseForgeClient curseForgeClient
         )
         {
-            _wowPathProvider = wowPathProvider;
             _logger = logger;
             _fingerPrintScanner = fingerPrintScanner;
             _curseForgeClient = curseForgeClient;
@@ -35,7 +38,7 @@ namespace GWowMod.Requests
 
         public async Task<IEnumerable<long>> Handle(FingerPrintRequest request, CancellationToken cancellationToken)
         {
-            string installPath = await _wowPathProvider.GetInstallPath();
+            var installPath = request.InstallPath;
 
             if (string.IsNullOrWhiteSpace(installPath))
             {
@@ -44,8 +47,8 @@ namespace GWowMod.Requests
 
             _logger.LogInformation($"Updating addons in {installPath}...");
 
-            Game game = await _curseForgeClient.GetGame();
-            CategorySection section = game.categorySections.FirstOrDefault();
+            var game = await _curseForgeClient.GetGame();
+            var section = game.categorySections.FirstOrDefault();
 
             if (section == null)
             {

@@ -9,6 +9,12 @@ namespace GWowMod.Requests
 {
     public class AddonsRequest : IRequest<MatchingGamesPayload>
     {
+        public AddonsRequest(string installPath)
+        {
+            InstallPath = installPath;
+        }
+
+        public string InstallPath { get; }
     }
 
     internal class AddonsRequestHandler : IRequestHandler<AddonsRequest, MatchingGamesPayload>
@@ -26,7 +32,7 @@ namespace GWowMod.Requests
 
         public async Task<MatchingGamesPayload> Handle(AddonsRequest request, CancellationToken cancellationToken)
         {
-            var fingerPrintRequest = new FingerPrintRequest();
+            var fingerPrintRequest = new FingerPrintRequest(request.InstallPath);
             var fingerPrints = (await _mediator.Send(fingerPrintRequest, cancellationToken)).ToArray();
 
             _logger.LogInformation($"FingerPrint count: {fingerPrints.Length}");

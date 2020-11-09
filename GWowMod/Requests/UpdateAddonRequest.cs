@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
@@ -13,32 +14,32 @@ namespace GWowMod.Requests
 {
     public class UpdateAddonRequest : IRequest
     {
-        public UpdateAddonRequest(params ExactMatch[] exactMatches)
+        public UpdateAddonRequest(string installPath, params ExactMatch[] exactMatches)
         {
+            InstallPath = installPath;
             ExactMatches = exactMatches;
         }
 
         public ExactMatch[] ExactMatches { get; }
+        public string InstallPath { get; }
     }
 
     internal class UpdateAddonRequestHandler : IRequestHandler<UpdateAddonRequest>
     {
         private readonly ILogger<UpdateAddonRequestHandler> _logger;
         private readonly HttpClient _httpClient;
-        private readonly IWowPathProvider _wowPathProvider;
 
         private readonly ProjectFileReleaseType _preferredReleaseType = ProjectFileReleaseType.Release;
 
-        public UpdateAddonRequestHandler(ILogger<UpdateAddonRequestHandler> logger, HttpClient httpClient, IWowPathProvider wowPathProvider)
+        public UpdateAddonRequestHandler(ILogger<UpdateAddonRequestHandler> logger, HttpClient httpClient)
         {
             _logger = logger;
             _httpClient = httpClient;
-            _wowPathProvider = wowPathProvider;
         }
 
         public async Task<Unit> Handle(UpdateAddonRequest request, CancellationToken cancellationToken)
         {
-            var installPath = await _wowPathProvider.GetInstallPath();
+            var installPath = request.InstallPath;
 
             foreach (var exactMatch in request.ExactMatches)
             {
@@ -48,8 +49,8 @@ namespace GWowMod.Requests
 
                 //foreach (var latestFile in exactMatch.LatestFiles)
                 //{
-                //    if (exactMatch.File.gameVersionFlavor != null && (latestFile.gameVersionFlavor == null
-                //        || latestFile.gameVersionFlavor != exactMatch.File.gameVersionFlavor))
+                //    if (exactMatch.File.GameVersionFlavor != null && (latestFile.GameVersionFlavor == null
+                //        || latestFile.GameVersionFlavor != exactMatch.File.GameVersionFlavor))
                 //    {
                 //        continue;
                 //    }
@@ -75,39 +76,64 @@ namespace GWowMod.Requests
                 if (exactMatch.LatestFile == null)
                 {
                     _logger.LogInformation($"Latest File for {exactMatch.File.modules[0].foldername} not found");
-                    return Unit.Value;
+                    continue;
                 }
 
-                if (exactMatch.LatestFile.Id == exactMatch.Id)
+                if (exactMatch.LatestFile.Id == exactMatch.File.Id)
                 {
                     _logger.LogInformation($"{exactMatch.File.modules[0].foldername} - Version: {exactMatch.File.FileName} is the latest and is already installed.");
-                    return Unit.Value;
+                    continue;
                 }
 
                 var response = (await _httpClient.GetAsync(exactMatch.LatestFile.DownloadUrl, cancellationToken))
                     .EnsureSuccessStatusCode();
 
-                var workingDirectory = Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GWowMod"));
-                var fileNameAndPath = Path.Combine(workingDirectory.FullName, exactMatch.LatestFile.FileName);
+                var workingDirectory = Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GWowMod", exactMatch.Id.ToString()));
+                var workingFileNameAndPath = Path.Combine(workingDirectory.FullName, exactMatch.LatestFile.FileName);
 
-                await using (var file = new FileInfo(fileNameAndPath).Create())
+                await using (var file = new FileInfo(workingFileNameAndPath).Create())
                 {
                     var bytes = await response.Content.ReadAsByteArrayAsync();
                     await file.WriteAsync(bytes, 0, bytes.Length, cancellationToken);
                 }
 
-                foreach (var module in exactMatch.File.modules)
+                var backupModules = new List<(string backupLocation, string originalLocation)>();
+
+                try
                 {
-                    var moduleToDelete = Path.Combine(installPath, module.foldername);
+                    foreach (var module in exactMatch.File.modules)
+                    {
+                        var moduleToDelete = Path.Combine(installPath, module.foldername);
+                        var moduleBackup = Path.Combine(workingDirectory.FullName, module.foldername);
 
-                    _logger.LogInformation($"Deleting module {moduleToDelete}...");
+                        _logger.LogInformation($"Deleting module {moduleToDelete}...");
+                        Directory.Move(moduleToDelete, moduleBackup);
+                        backupModules.Add((backupLocation: moduleBackup, originalLocation: moduleToDelete));
+                    }
 
-                    Directory.Delete(moduleToDelete, recursive: true);
+                    ZipFile.ExtractToDirectory(workingFileNameAndPath, installPath);
                 }
+                catch (Exception exOuter)
+                {
+                    try
+                    {
+                        foreach (var (backupLocation, originalLocation) in backupModules)
+                        {
+                            Directory.Move(backupLocation, originalLocation);
+                        }
+                    }
+                    catch (Exception exInner)
+                    {
+                        throw new AddonInstallException(exOuter.ToString(),
+                            new AddonInstallException(exInner.ToString()));
+                    }
 
-                ZipFile.ExtractToDirectory(fileNameAndPath, installPath);
-
-                File.Delete(fileNameAndPath);
+                    throw new AddonInstallException(exOuter.ToString());
+                }
+                finally
+                {
+                    Directory.Delete(workingDirectory.FullName, recursive: true);
+                }
 
                 _logger.LogInformation($"Finished updating {exactMatch.File.modules[0].foldername} from {exactMatch.File.FileName} to {exactMatch.LatestFile.FileName}...");
             }
