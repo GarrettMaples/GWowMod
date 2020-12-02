@@ -29,23 +29,35 @@ namespace GWowMod
 
         public async Task SaveInstallPath(string installPath)
         {
-            using (var reader = new StreamReader(File.Open(GetSettingsLocation(), FileMode.OpenOrCreate, FileAccess.Read,
-                FileShare.ReadWrite)))
+            var settingsLocation = GetSettingsLocation();
+            
+            using (var reader = new StreamReader(File.Open(settingsLocation, FileMode.OpenOrCreate, FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete)))
             {
                 var settingsText = await reader.ReadToEndAsync();
 
                 GWowModSettings gWowModSettings;
                 if (!string.IsNullOrWhiteSpace(settingsText))
                 {
-                    gWowModSettings = JsonSerializer.Deserialize<GWowModSettings>(settingsText);
+                    try
+                    {
+                        gWowModSettings = JsonSerializer.Deserialize<GWowModSettings>(settingsText);
+                    }
+                    catch
+                    {
+                        File.Delete(settingsLocation);
+                        await SaveInstallPath(installPath);
+                        return;
+                    }
+                        
                     gWowModSettings.WowInstallPaths.Add(installPath);
                 }
                 else
                 {
-                    gWowModSettings = new GWowModSettings { WowInstallPaths = new [] { installPath } };
+                    gWowModSettings = new GWowModSettings { WowInstallPaths = new[] { installPath } };
                 }
 
-                using (var writer = new StreamWriter(File.Open(GetSettingsLocation(), FileMode.Truncate, FileAccess.Write,
+                await using (var writer = new StreamWriter(File.Open(GetSettingsLocation(), FileMode.Truncate, FileAccess.Write,
                     FileShare.ReadWrite)))
                 {
                     await writer.WriteLineAsync(JsonSerializer.Serialize(gWowModSettings));
