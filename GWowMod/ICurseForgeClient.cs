@@ -6,7 +6,7 @@ namespace GWowMod
 {
     public interface ICurseForgeClient
     {
-        [Post("/v2/fingerprint")]
+        [Post("/v2/Fingerprint")]
         Task<MatchingGamesPayload> GetMatchingGames(long[] fingerPrints);
 
         [Get("/v2/game/1")]

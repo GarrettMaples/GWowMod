@@ -78,9 +78,9 @@ namespace GWowMod.Desktop.ViewModels
                 return matchingGamesPayload;
             });
 
-            foreach (var match in addonsResult.exactMatches)
+            await foreach (var match in addonsResult)
             {
-                var addon = _mapper.Map<ExactMatch, InstalledAddonModel>(match);
+                var addon = _mapper.Map<Match, InstalledAddonModel>(match);
                 Source.Add(addon);
             }
 
@@ -94,7 +94,9 @@ namespace GWowMod.Desktop.ViewModels
                 var addonsRequest = new AddonsRequest(_viewModel.InstallPathValue);
                 var matchingGamesPayload = await _mediator.Send(addonsRequest);
 
-                var exactMatch = matchingGamesPayload.exactMatches.FirstOrDefault(x => x.Id == id);
+                var exactMatch = await matchingGamesPayload
+                    .FirstOrDefaultAsync(x => x.Id == id);
+
                 if (exactMatch == null)
                 {
                     throw new InvalidOperationException($"Unable to find addon with Id: {id}");

@@ -33,9 +33,9 @@ namespace GWowMod.Requests
         public async Task<Unit> Handle(UpdateAllAddonsRequest request, CancellationToken cancellationToken)
         {
             var addonsRequest = new AddonsRequest(request.InstallPath);
-            MatchingGamesPayload matchingGamesPayload = await _mediator.Send(addonsRequest, cancellationToken);
+            var matchingGamesPayload = await (await _mediator.Send(addonsRequest, cancellationToken)).ToListAsync(cancellationToken);
 
-            var updateAddonRequest = new UpdateAddonRequest(request.InstallPath, matchingGamesPayload.exactMatches.Where(x => x.LatestFile != null && x.LatestFile.Id != x.Id).ToArray());
+            var updateAddonRequest = new UpdateAddonRequest(request.InstallPath, matchingGamesPayload.Where(x => x.LatestFile != null && x.LatestFile.Id != x.Id).ToArray());
             return await _mediator.Send(updateAddonRequest, cancellationToken);
         }
     }

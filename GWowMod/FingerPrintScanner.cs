@@ -1,5 +1,4 @@
-﻿using GWowMod.Curse.Hashing;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +14,7 @@ namespace GWowMod
         IEnumerable<long> GetFingerPrints(Game game);
     }
 
-    internal class FingerPrintScanner : IFingerPrintScanner
+    public class FingerPrintScanner : IFingerPrintScanner
     {
         public IEnumerable<long> GetFingerPrints(Game game)
         {
@@ -29,7 +28,11 @@ namespace GWowMod
             var fingerPrints = new ConcurrentBag<long>();
             var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
-            Parallel.ForEach(section.Directory.GetDirectories(), parallelOptions, p =>
+            
+            var directories = section.Directory.GetDirectories();
+                //new[] {new DirectoryInfo(@"C:\Program Files (x86)\World of Warcraft\_retail_\Interface\AddOns\RaiderIO") };
+
+            Parallel.ForEach(directories, parallelOptions, p =>
             {
                 var matchingFiles = GetMatchingFiles(game, section, p);
                 // FileSystemInfo[] infos = p.GetFileSystemInfos();
@@ -72,7 +75,7 @@ namespace GWowMod
         {
             var matchingFileList = new List<string>();
             var fileInfoList = new List<FileInfo>();
-            var str = section.Directory.FullName;
+            var str = section.Directory.FullName;// + Path.DirectorySeparatorChar.ToString();
 
             foreach (var file in pFolder.GetFiles("*.*", SearchOption.AllDirectories))
             {
@@ -130,6 +133,7 @@ namespace GWowMod
             var gameFileParsingRule =
                 game.fileParsingRules.FirstOrDefault(p =>
                     p.fileExtension == pIncludeFile.Extension.ToLowerInvariant());
+
             if (gameFileParsingRule == null)
             {
                 return;
@@ -162,7 +166,7 @@ namespace GWowMod
                     // {
                     //   File = match.Groups[1].Value
                     // } : (object) null);
-                    break;
+                    throw;
                 }
 
                 ProcessIncludeFile(game, section, matchingFileList, new FileInfo(fileName));

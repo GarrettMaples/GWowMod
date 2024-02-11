@@ -20,7 +20,7 @@ namespace GWowMod.Desktop.Models
     {
         public InstalledAddonModelMapping()
         {
-            CreateMap<ExactMatch, InstalledAddonModel>()
+            CreateMap<Match, InstalledAddonModel>()
                 .ForMember
                 (
                     dest => dest.Id,

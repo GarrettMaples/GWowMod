@@ -3,136 +3,91 @@ using System.Text;
 
 namespace GWowMod
 {
-    // Decompiled with JetBrains decompiler
-// Type: Curse.Hashing.MurmurHash2
-// Assembly: Curse.Hashing, Version=6.0.0.0, Culture=neutral, PublicKeyToken=null
-// MVID: 2F7BCE7E-2DAB-48A9-B3D7-52866694E264
-// Assembly location: C:\Users\garre\AppData\Roaming\Twitch\Bin\Curse.Hashing.dll
-    namespace Curse.Hashing
+    public class MurmurHash2
     {
-        public class MurmurHash2
+        public const int Seed = 1;
+        public const int BufferSize = 65536;
+
+        public static long ComputeNormalizedFileHash(string path) => MurmurHash2.ComputeFileHash(path, true);
+
+        public static long ComputeFileHash(string path, bool normalizeWhitespace = false)
         {
-            public const int Seed = 1;
-            public const int BufferSize = 65536;
+            using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                return (long)MurmurHash2.ComputeHash((Stream)fileStream, normalizeWhitespace: normalizeWhitespace);
+        }
 
-            public static long ComputeNormalizedFileHash(string path)
+        public static uint ComputeHash(string input, bool normalizeWhitespace = false) => MurmurHash2.ComputeHash(Encoding.UTF8.GetBytes(input), normalizeWhitespace);
+
+        public static uint ComputeHash(byte[] input, bool normalizeWhitespace = false) => MurmurHash2.ComputeHash((Stream)new MemoryStream(input), normalizeWhitespace: normalizeWhitespace);
+
+        public static uint ComputeHash(Stream input, long precomputedLength = 0, bool normalizeWhitespace = false)
+        {
+            long num1 = precomputedLength != 0L ? precomputedLength : input.Length;
+            byte[] buffer = new byte[65536];
+            if (precomputedLength == 0L & normalizeWhitespace)
             {
-                return ComputeFileHash(path, true);
+                long position = input.Position;
+                num1 = MurmurHash2.ComputeNormalizedLength(input, buffer);
+                input.Seek(position, SeekOrigin.Begin);
             }
-
-            public static long ComputeFileHash(string path, bool normalizeWhitespace = false)
+            uint num2 = (uint)(1UL ^ (ulong)num1);
+            uint num3 = 0;
+            int num4 = 0;
+        label_3:
+            int num5 = input.Read(buffer, 0, buffer.Length);
+            if (num5 != 0)
             {
-                using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                for (int index = 0; index < num5; ++index)
                 {
-                    return ComputeHash(fileStream, 0L, normalizeWhitespace);
-                }
-            }
-
-            public static uint ComputeHash(string input, bool normalizeWhitespace = false)
-            {
-                return ComputeHash(Encoding.UTF8.GetBytes(input), normalizeWhitespace);
-            }
-
-            public static uint ComputeHash(byte[] input, bool normalizeWhitespace = false)
-            {
-                return ComputeHash(new MemoryStream(input), 0L, normalizeWhitespace);
-            }
-
-            public static uint ComputeHash(Stream input, long precomputedLength = 0, bool normalizeWhitespace = false)
-            {
-                long num1 = precomputedLength != 0L ? precomputedLength : input.Length;
-                byte[] buffer = new byte[65536];
-                if ((precomputedLength == 0L) & normalizeWhitespace)
-                {
-                    long position = input.Position;
-                    num1 = ComputeNormalizedLength(input, buffer);
-                    input.Seek(position, SeekOrigin.Begin);
-                }
-
-                uint num2 = (uint) (1UL ^ (ulong) num1);
-                uint num3 = 0;
-                int num4 = 0;
-                label_3:
-                int num5 = input.Read(buffer, 0, buffer.Length);
-                if (num5 != 0)
-                {
-                    for (int index = 0; index < num5; ++index)
+                    byte b = buffer[index];
+                    if (!normalizeWhitespace || !MurmurHash2.IsWhitespaceCharacter(b))
                     {
-                        byte b = buffer[index];
-                        if (!normalizeWhitespace || !IsWhitespaceCharacter(b))
+                        num3 |= (uint)b << num4;
+                        num4 += 8;
+                        if (num4 == 32)
                         {
-                            num3 |= (uint) b << num4;
-                            num4 += 8;
-                            if (num4 == 32)
-                            {
-                                uint num6 = num3 * 1540483477U;
-                                uint num7 = (num6 ^ (num6 >> 24)) * 1540483477U;
-                                num2 = (num2 * 1540483477U) ^ num7;
-                                num3 = 0U;
-                                num4 = 0;
-                            }
+                            uint num6 = num3 * 1540483477U;
+                            uint num7 = (num6 ^ num6 >> 24) * 1540483477U;
+                            num2 = num2 * 1540483477U ^ num7;
+                            num3 = 0U;
+                            num4 = 0;
                         }
                     }
-
-                    goto label_3;
                 }
-
-                {
-                    if (num4 > 0)
-                    {
-                        num2 = (num2 ^ num3) * 1540483477U;
-                    }
-
-                    uint num6 = (num2 ^ (num2 >> 13)) * 1540483477U;
-                    return num6 ^ (num6 >> 15);
-                }
+                goto label_3;
             }
-
-            public static uint ComputeNormalizedHash(string input)
+            else
             {
-                return ComputeHash(input, true);
-            }
-
-            public static uint ComputeNormalizedHash(byte[] input)
-            {
-                return ComputeHash(input, true);
-            }
-
-            public static uint ComputeNormalizedHash(Stream input, long precomputedLength = 0)
-            {
-                return ComputeHash(input, precomputedLength, true);
-            }
-
-            public static long ComputeNormalizedLength(Stream input, byte[] buffer = null)
-            {
-                long num1 = 0;
-                if (buffer == null)
-                {
-                    buffer = new byte[65536];
-                }
-
-                label_2:
-                int num2 = input.Read(buffer, 0, buffer.Length);
-                if (num2 == 0)
-                {
-                    return num1;
-                }
-
-                for (int index = 0; index < num2; ++index)
-                {
-                    if (!IsWhitespaceCharacter(buffer[index]))
-                    {
-                        ++num1;
-                    }
-                }
-
-                goto label_2;
-            }
-
-            private static bool IsWhitespaceCharacter(byte b)
-            {
-                return b == 9 || b == 10 || b == 13 || b == 32;
+                if (num4 > 0)
+                    num2 = (num2 ^ num3) * 1540483477U;
+                uint num6 = (num2 ^ num2 >> 13) * 1540483477U;
+                return num6 ^ num6 >> 15;
             }
         }
+
+        public static uint ComputeNormalizedHash(string input) => MurmurHash2.ComputeHash(input, true);
+
+        public static uint ComputeNormalizedHash(byte[] input) => MurmurHash2.ComputeHash(input, true);
+
+        public static uint ComputeNormalizedHash(Stream input, long precomputedLength = 0) => MurmurHash2.ComputeHash(input, precomputedLength, true);
+
+        public static long ComputeNormalizedLength(Stream input, byte[] buffer = null)
+        {
+            long num1 = 0;
+            if (buffer == null)
+                buffer = new byte[65536];
+            label_2:
+            int num2 = input.Read(buffer, 0, buffer.Length);
+            if (num2 == 0)
+                return num1;
+            for (int index = 0; index < num2; ++index)
+            {
+                if (!MurmurHash2.IsWhitespaceCharacter(buffer[index]))
+                    ++num1;
+            }
+            goto label_2;
+        }
+
+        private static bool IsWhitespaceCharacter(byte b) => b == (byte)9 || b == (byte)10 || b == (byte)13 || b == (byte)32;
     }
 }

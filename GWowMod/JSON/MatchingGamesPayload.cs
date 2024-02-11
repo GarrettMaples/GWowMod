@@ -15,9 +15,9 @@ namespace GWowMod.JSON
 
     public class Module
     {
-        public string foldername { get; set; }
-        public object fingerprint { get; set; }
-        public int type { get; set; }
+        public string Foldername { get; set; }
+        public object Fingerprint { get; set; }
+        public int Type { get; set; }
     }
 
     public class SortableGameVersion
@@ -28,7 +28,7 @@ namespace GWowMod.JSON
         public string gameVersionName { get; set; }
     }
 
-    public class File
+    public class File : IFile
     {
         [JsonProperty("Id")]
         public int Id { get; set; }
@@ -53,7 +53,7 @@ namespace GWowMod.JSON
         public int alternateFileId { get; set; }
         public List<Dependency> dependencies { get; set; }
         public bool isAvailable { get; set; }
-        public List<Module> modules { get; set; }
+        public List<Module> Modules { get; set; }
         public object packageFingerprint { get; set; }
         public List<string> gameVersion { get; set; }
         public List<SortableGameVersion> sortableGameVersion { get; set; }
@@ -93,13 +93,6 @@ namespace GWowMod.JSON
         public int fileId { get; set; }
     }
 
-    public class Module2
-    {
-        public string foldername { get; set; }
-        public object fingerprint { get; set; }
-        public int type { get; set; }
-    }
-
     public class SortableGameVersion2
     {
         public string gameVersionPadded { get; set; }
@@ -108,7 +101,7 @@ namespace GWowMod.JSON
         public string gameVersionName { get; set; }
     }
 
-    public class LatestFile
+    public class LatestFile : IFile
     {
         [JsonProperty("Id")]
         public int Id { get; set; }
@@ -135,7 +128,7 @@ namespace GWowMod.JSON
 
         [JsonProperty("IsAvailable")]
         public bool IsAvailable { get; set; }
-        public List<Module2> modules { get; set; }
+        public List<Module> Modules { get; set; }
         public object packageFingerprint { get; set; }
         public List<string> gameVersion { get; set; }
         public List<SortableGameVersion2> sortableGameVersion { get; set; }
@@ -194,6 +187,22 @@ namespace GWowMod.JSON
         }
     }
 
+    public class Match
+    {
+        public int Id { get; set; }
+        public IFile File { get; set; }
+        public IFile LatestFile { get; set; }
+    }
+
+    public interface IFile
+    {
+        int Id { get; }
+        string FileName { get; }
+        DateTime FileDate { get; }
+        string DownloadUrl { get; }
+        List<Module> Modules { get; }
+    }
+
     public class PartialMatchFingerprints
     {
     }
@@ -203,7 +212,7 @@ namespace GWowMod.JSON
         public bool isCacheBuilt { get; set; }
         public List<ExactMatch> exactMatches { get; set; }
         public List<object> exactFingerprints { get; set; }
-        public List<object> partialMatches { get; set; }
+        public List<ExactMatch> partialMatches { get; set; }
         public PartialMatchFingerprints partialMatchFingerprints { get; set; }
         public List<object> installedFingerprints { get; set; }
         public List<object> unmatchedFingerprints { get; set; }

@@ -14,13 +14,13 @@ namespace GWowMod.Requests
 {
     public class UpdateAddonRequest : IRequest
     {
-        public UpdateAddonRequest(string installPath, params ExactMatch[] exactMatches)
+        public UpdateAddonRequest(string installPath, params Match[] exactMatches)
         {
             InstallPath = installPath;
             ExactMatches = exactMatches;
         }
 
-        public ExactMatch[] ExactMatches { get; }
+        public Match[] ExactMatches { get; }
         public string InstallPath { get; }
     }
 
@@ -43,7 +43,7 @@ namespace GWowMod.Requests
 
             foreach (var exactMatch in request.ExactMatches)
             {
-                _logger.LogInformation($"Updating {exactMatch.File.modules[0].foldername}...");
+                _logger.LogInformation($"Updating {exactMatch.File.Modules[0].Foldername}...");
 
                 //LatestFile actualLatestFile = null;
 
@@ -75,13 +75,13 @@ namespace GWowMod.Requests
 
                 if (exactMatch.LatestFile == null)
                 {
-                    _logger.LogInformation($"Latest File for {exactMatch.File.modules[0].foldername} not found");
+                    _logger.LogInformation($"Latest File for {exactMatch.File.Modules[0].Foldername} not found");
                     continue;
                 }
 
                 if (exactMatch.LatestFile.Id == exactMatch.File.Id)
                 {
-                    _logger.LogInformation($"{exactMatch.File.modules[0].foldername} - Version: {exactMatch.File.FileName} is the latest and is already installed.");
+                    _logger.LogInformation($"{exactMatch.File.Modules[0].Foldername} - Version: {exactMatch.File.FileName} is the latest and is already installed.");
                     continue;
                 }
 
@@ -101,10 +101,17 @@ namespace GWowMod.Requests
 
                 try
                 {
-                    foreach (var module in exactMatch.File.modules)
+                    foreach (var module in exactMatch.File.Modules)
                     {
-                        var moduleToDelete = Path.Combine(installPath, module.foldername);
-                        var moduleBackup = Path.Combine(workingDirectory.FullName, module.foldername);
+                        var moduleDirectory = new DirectoryInfo(Path.Combine(installPath, module.Foldername));
+
+                        if (!moduleDirectory.Exists)
+                        {
+                            continue;
+                        }
+
+                        var moduleToDelete = moduleDirectory.FullName;
+                        var moduleBackup = Path.Combine(workingDirectory.FullName, module.Foldername);
 
                         _logger.LogInformation($"Deleting module {moduleToDelete}...");
                         Directory.Move(moduleToDelete, moduleBackup);
@@ -135,7 +142,7 @@ namespace GWowMod.Requests
                     Directory.Delete(workingDirectory.FullName, recursive: true);
                 }
 
-                _logger.LogInformation($"Finished updating {exactMatch.File.modules[0].foldername} from {exactMatch.File.FileName} to {exactMatch.LatestFile.FileName}...");
+                _logger.LogInformation($"Finished updating {exactMatch.File.Modules[0].Foldername} from {exactMatch.File.FileName} to {exactMatch.LatestFile.FileName}...");
             }
 
             return Unit.Value;

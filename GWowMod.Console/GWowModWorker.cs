@@ -60,11 +60,11 @@ namespace GWowMod.Console
             if (cliOptions.Addons)
             {
                 var addonsRequest = new AddonsRequest(await _wowPathProvider.GetInstallPath());
-                var matchingGamesPayload = await _mediator.Send(addonsRequest);
+                var matchingGamesPayload = await (await _mediator.Send(addonsRequest)).ToListAsync();
 
-                foreach (var exactMatch in matchingGamesPayload.exactMatches)
+                foreach (var exactMatch in matchingGamesPayload)
                 {
-                    _logger.LogInformation($"Id: {exactMatch.File.Id} Name: {exactMatch.File.modules[0].foldername} " +
+                    _logger.LogInformation($"Id: {exactMatch.File.Id} Name: {exactMatch.File.Modules[0].Foldername} " +
                         $"Version: {exactMatch.File.FileName} File Date: {exactMatch.File.FileDate}");
                 }
             }
@@ -72,9 +72,9 @@ namespace GWowMod.Console
             if (cliOptions.UpdateAddon.HasValue)
             {
                 var addonsRequest = new AddonsRequest(await _wowPathProvider.GetInstallPath());
-                var matchingGamesPayload = await _mediator.Send(addonsRequest);
+                var matchingGamesPayload = await (await _mediator.Send(addonsRequest)).ToListAsync();
 
-                var exactMatch = matchingGamesPayload.exactMatches.FirstOrDefault(x => x.Id == cliOptions.UpdateAddon.Value);
+                var exactMatch = matchingGamesPayload.FirstOrDefault(x => x.Id == cliOptions.UpdateAddon.Value);
                 if (exactMatch == null)
                 {
                     _logger.LogInformation($"Unable to find addon with Id: {cliOptions.UpdateAddon.Value}");

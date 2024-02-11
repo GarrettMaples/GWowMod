@@ -47,7 +47,7 @@
                 Margin="{StaticResource SmallLeftRightMargin}"
                 KeyboardNavigation.TabNavigation="Once">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding FileName}" Header="Name" />
+                    <DataGridTextColumn Binding="{Binding FileName}" Header="Name" SortDirection="Ascending" />
                     <DataGridTextColumn Binding="{Binding FileDate}" Header="File Date" />
                     <DataGridTextColumn Binding="{Binding DownloadUrl}" Header="Download Url" />
                     <DataGridTemplateColumn>
